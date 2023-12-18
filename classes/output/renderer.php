@@ -264,8 +264,8 @@ class renderer extends plugin_renderer_base {
     public function render_dashboard_assessment(string $baseurl) : string {
         $html = '';
         $html .= $this->header();
-        $html .= $this->render_report_cards();
         $html .= $this->render_report_heatmap();
+        $html .= $this->render_report_cards();
         $html .= $this->footer();
 
         return $html;

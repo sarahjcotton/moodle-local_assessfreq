@@ -179,3 +179,8 @@
     padding-top: 25px;
     padding-right: 10px;
 }
+
+#page-admin-local-assessfreq-dashboard_assessment .card-deck .card {
+    width: 100%;
+    flex: auto;
+}
