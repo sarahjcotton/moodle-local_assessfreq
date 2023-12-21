@@ -125,7 +125,7 @@ function(Str, ModalFactory, Fragment, Ajax) {
             });
             return;
         }).catch(() => {
-            Notification.exception(new Error('Failed to load string: loading'));
+            console.log(new Error('Failed to load string: loading'));
         });
     };
 
@@ -176,7 +176,7 @@ function(Str, ModalFactory, Fragment, Ajax) {
 
                 return;
             }).catch(() => {
-                Notification.exception(new Error('Failed to load string: searchquiz'));
+                console.log(new Error('Failed to load string: searchquiz'));
             });
         });
     };
@@ -205,7 +205,7 @@ function(Str, ModalFactory, Fragment, Ajax) {
 
                     return;
                 }).catch(() => {
-                    Notification.exception(new Error('Failed to load string: searchquiz'));
+                    console.log(new Error('Failed to load string: searchquiz'));
                 });
 
             }

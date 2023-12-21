@@ -198,7 +198,7 @@ function(Str, Notification, ModalFactory, ModalLarge, Templates, Ajax) {
 
             });
         }).catch(() => {
-            Notification.exception(new Error('Failed to load string: loading'));
+            console.log(new Error('Failed to load string: loading'));
         });
 
     };

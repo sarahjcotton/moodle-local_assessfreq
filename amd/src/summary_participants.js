@@ -60,7 +60,7 @@ function(Fragment, Templates, Str, Notification) {
                         chartElement.innerHTML = noDatastr.outerHTML;
                         return;
                     }).catch(() => {
-                        Notification.exception(new Error('Failed to load string: nodata'));
+                        console.log(new Error('Failed to load string: nodata'));
                     });
                 }
             }).fail(() => {

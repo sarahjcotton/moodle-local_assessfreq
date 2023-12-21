@@ -65,7 +65,7 @@ function($,Str, ModalFactory, ModalEvents, Fragment, Ajax) {
             });
             return;
         }).catch(() => {
-            Notification.exception(new Error('Failed to load string: loading'));
+            console.log(new Error('Failed to load string: loading'));
         });
     };
 
@@ -92,7 +92,7 @@ function($,Str, ModalFactory, ModalEvents, Fragment, Ajax) {
             modalObj.setBody(Fragment.loadFragment('local_assessfreq', 'new_override_form', contextid, params));
             return;
         }).catch(() => {
-            Notification.exception(new Error('Failed to load string: useroverride'));
+            console.log(new Error('Failed to load string: useroverride'));
         });
     };
 

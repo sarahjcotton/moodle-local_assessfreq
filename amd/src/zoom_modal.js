@@ -59,7 +59,8 @@ function(Str, ModalFactory, Fragment, Ajax, Templates, ModalLarge, Notification)
                     modalObj.show();
                     return;
                 }).catch(() => {
-                    Notification.exception(new Error('Failed to load string: nodata'));
+                    // Notification.exception(new Error('Failed to load string: nodata'));
+                    console.log(new Error('Failed to load string: nodata'));
                 });
             }
         }).fail(() => {
@@ -76,7 +77,7 @@ function(Str, ModalFactory, Fragment, Ajax, Templates, ModalLarge, Notification)
      */
     const createModal = function() {
         return new Promise((resolve, reject) => {
-            Str.get_string('loading', 'core').then((title) => {
+            Str.get_string('loading', 'local_assessfreq').then((title) => {
                 // Create the Modal.
                 ModalFactory.create({
                     type: ModalLarge.TYPE,
@@ -88,7 +89,7 @@ function(Str, ModalFactory, Fragment, Ajax, Templates, ModalLarge, Notification)
                     resolve();
                 });
             }).catch(() => {
-                reject(new Error('Failed to load string: loading'));
+                console.log(new Error('Failed to load string: loading'));
             });
         });
     };
