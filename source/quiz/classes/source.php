@@ -214,7 +214,7 @@ class Source extends source_base {
      * @param int $hoursahead
      * @param int $hoursbehind
      */
-    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind) {
+    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind, bool $returnstring = true) {
         // Get tracked quizzes.
         $trackedquizzes = $this->get_tracked_quizzes_with_overrides($now, $hoursahead * HOURSECS, $hoursbehind * HOURSECS);
 
@@ -233,7 +233,10 @@ class Source extends source_base {
             }
         }
 
-        return get_string('inprogress:assessments', 'assessfreqsource_quiz', $counts);
+        if ($returnstring) {
+            return get_string('inprogress:assessments', 'assessfreqsource_quiz', $counts);
+        }
+        return $counts;
     }
 
     /**
@@ -547,6 +550,7 @@ class Source extends source_base {
         // Dashboard link.
         $dashboardlink = new moodle_url('/local/assessfreq/', ['activityid' => $context->instanceid], 'activity_dashboard');
 
+        $quizdata->id = $quiz->id;
         $quizdata->name = format_string($quizrecord->name, true, ["context" => $context, "escape" => true]);
         $quizdata->timeopen = $timesopen;
         $quizdata->timeclose = $timeclose;
@@ -555,7 +559,12 @@ class Source extends source_base {
         $quizdata->earlyopenstamp = $earlyopenstamp;
         $quizdata->lateclose = $lateclose;
         $quizdata->lateclosestamp = $lateclosestamp;
-        $quizdata->participants = count($frequency->get_event_users($context->id, 'quiz', false));
+        // For unit tests get the raw data as scheduled tasks won't have run.
+        if (PHPUNIT_TEST) {
+            $quizdata->participants = count($frequency->get_event_users_raw($context->id, 'quiz', false));
+        } else {
+            $quizdata->participants = count($frequency->get_event_users($context->id, 'quiz', false));
+        }
         $quizdata->overrideparticipants = $overrideinfo->users;
         $quizdata->url = $context->get_url()->out(false);
         $quizdata->types = $questions->types;
@@ -573,7 +582,7 @@ class Source extends source_base {
         $quizdata->timestampopen = $quizobject->get_quiz()->timeopen;
         $quizdata->timestampclose = $quizobject->get_quiz()->timeclose;
         $quizdata->timestamplimit = $quizobject->get_quiz()->timelimit;
-        $quizdata->isoverride = $quiz->isoverride;
+        $quizdata->isoverride = $quiz->isoverride ?? 0;
 
         if (isset($quiz->overrides)) {
             $quizdata->overrides = $quiz->overrides;

@@ -33,6 +33,7 @@ use html_writer;
 use local_assessfreq\source_base;
 use local_assessfreq\utils;
 use paging_bar;
+use PHPUnit\TextUI\XmlConfiguration\PHPUnit;
 use plugin_renderer_base;
 
 defined('MOODLE_INTERNAL') || die();
@@ -43,6 +44,9 @@ require_once($CFG->dirroot . '/local/assessfreq/lib.php');
 class renderer extends plugin_renderer_base {
 
     public function render_report($data) {
+
+        // Charts array for unit testing.
+        $charts = [];
 
         // In progress counts.
         $contents = '';
@@ -114,6 +118,7 @@ class renderer extends plugin_renderer_base {
         } else {
             $contents = '';
         }
+        $charts['upcoming'] = $chart;
         $upcomingcontainer = $this->render_from_template(
             'local_assessfreq/card',
             [
@@ -167,6 +172,7 @@ class renderer extends plugin_renderer_base {
         } else {
             $contents = '';
         }
+        $charts['participants'] = $chart;
 
         $summarycontainer = $this->render_from_template(
             'local_assessfreq/card',
@@ -208,6 +214,10 @@ class renderer extends plugin_renderer_base {
         );
         // Only get modules with the "get_inprogress_count" method as only these display on the report.
         $modules = get_modules($preferencemodule, 'get_inprogress_count');
+
+        if (PHPUNIT_TEST) {
+            return $charts;
+        }
 
         return $this->render_from_template(
             'assessfreqreport_activities_in_progress/activities-in-progress',

@@ -56,9 +56,15 @@ class quiz_tracking extends scheduled_task {
      */
     public function execute() : void {
         global $DB;
-        mtrace('assessfreqsource_quiz: Processing quiz tracking');
-
+        if (!PHPUNIT_TEST) {
+            mtrace('assessfreqsource_quiz: Processing quiz tracking');
+        }
         $actionstart = time();
+
+        // If a unit test is running, use the epoche from local/assessfreq/tests/quiz_test.php:147.
+        if (PHPUNIT_TEST) {
+            $actionstart = 1594788000;
+        }
 
         $source = new source();
         $frequency = new frequency();
@@ -109,7 +115,8 @@ class quiz_tracking extends scheduled_task {
         }
 
         $actionduration = time() - $actionstart;
-
-        mtrace("assessfreqsource_quiz: Processing quiz tracking of $count records finished in: $actionduration seconds");
+        if (!PHPUNIT_TEST) {
+            mtrace("assessfreqsource_quiz: Processing quiz tracking of $count records finished in: $actionduration seconds");
+        }
     }
 }

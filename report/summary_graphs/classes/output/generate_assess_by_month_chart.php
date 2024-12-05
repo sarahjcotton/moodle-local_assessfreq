@@ -61,6 +61,10 @@ trait generate_assess_by_month_chart {
         $chart->set_labels($labels);
 
         $result['hasdata'] = true;
+        if (PHPUNIT_TEST) {
+            $result['chart'] = $chart;
+            return $result;
+        }
         $result['chart'] = $OUTPUT->render($chart);
 
         return $result;

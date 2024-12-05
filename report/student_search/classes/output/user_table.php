@@ -79,19 +79,23 @@ class user_table extends table_sql implements renderable {
         string $baseurl,
         int $contextid,
         string $search,
-        int $page = 0
+        int $page = 0,
+        int $now = 0
     ) {
         parent::__construct('local_assessfreq_student_search_table');
 
         $this->hoursahead = (int)get_user_preferences('assessfreqreport_student_search_hoursahead_preference', 8);
         $this->hoursbehind = (int)get_user_preferences('assessfreqreport_student_search_hoursbehind_preference', 1);
 
+        $this->hoursahead = 8;
+        $this->hoursbehind = 8;
+
         $this->search = $search;
         $this->set_attribute('id', 'local_assessfreq_ackreport_table');
         $this->set_attribute('class', 'generaltable generalbox');
         $this->downloadable = false;
         $this->define_baseurl($baseurl);
-        $this->now = time();
+        $this->now = empty($now) ? time() : $now;
 
         $context = \context::instance_by_id($contextid);
 

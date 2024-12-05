@@ -83,6 +83,11 @@ class participant_summary {
             $chart->add_series($participants);
             $chart->set_labels($labels);
 
+            if (PHPUNIT_TEST) {
+                $result['chart'] = $chart;
+                return $result;
+            }
+
             $result['chart'] = $OUTPUT->render($chart);
         }
 

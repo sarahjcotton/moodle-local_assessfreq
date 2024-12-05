@@ -84,6 +84,10 @@ class assess_by_activity {
             }
             $chart->add_series($events);
             $chart->set_labels($labels);
+            if (PHPUNIT_TEST) {
+                $result['chart'] = $chart;
+                return $result;
+            }
             $result['chart'] = $OUTPUT->render($chart);
         }
 

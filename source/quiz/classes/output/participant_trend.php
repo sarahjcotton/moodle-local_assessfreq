@@ -26,6 +26,7 @@ namespace assessfreqsource_quiz\output;
 
 use core\chart_line;
 use core\chart_series;
+use PHPUnit\TextUI\XmlConfiguration\PHPUnit;
 
 /**
  * Renderable for participant trend card.
@@ -90,6 +91,11 @@ class participant_trend {
             $chart->add_series($inprogressseries);
             $chart->add_series($finishedseries);
             $chart->set_labels($labels);
+
+            if (PHPUNIT_TEST) {
+                $result['chart'] = $chart;
+                return $result;
+            }
 
             $result['chart'] = $OUTPUT->render($chart);
         }
