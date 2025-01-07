@@ -38,12 +38,13 @@ require_once(dirname(__FILE__, 2) . '/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_assessfreq_external extends external_api {
+
     /**
      * Returns description of method parameters.
      *
      * @return external_function_parameters
      */
-    public static function get_courses_parameters() : external_function_parameters {
+    public static function get_courses_parameters(): external_function_parameters {
         return new external_function_parameters([
             'query' => new external_value(PARAM_TEXT, 'The query to find'),
         ]);
@@ -55,7 +56,7 @@ class local_assessfreq_external extends external_api {
      * @param string $query The search query.
      * @return string JSON response.
      */
-    public static function get_courses(string $query) : string {
+    public static function get_courses(string $query): string {
         global $DB, $SITE, $COURSE;
         manager::write_close(); // Close session early this is a read op.
 
@@ -66,22 +67,27 @@ class local_assessfreq_external extends external_api {
         );
 
         // Execute API call.
-        $sql = 'SELECT id, fullname, category FROM {course} WHERE ' . $DB->sql_like('fullname', ':fullname', false) . ' AND id <> 1';
+        $sql = 'SELECT id, fullname, category
+                FROM {course}
+                WHERE ' . $DB->sql_like('fullname', ':fullname', false) . '
+                AND id <> 1';
         $params = ['fullname' => '%' . $DB->sql_like_escape($query) . '%'];
         $courses = $DB->get_records_sql($sql, $params, 0, 30);
 
         $data = [];
-        if (has_capability('local/assessfreq:view', context_system::instance())) {
+        $context = context_system::instance();
+        if (has_capability('local/assessfreq:view', $context)) {
             $data[SITEID] = [
                 "id" => $SITE->id,
-                "fullname" => external_format_string($SITE->fullname, true, ["escape" => false])
+                "fullname" => external_format_string($SITE->fullname, $context, true, ["escape" => false]),
             ];
         }
-        $categories = \core_course_category::make_categories_list();
+        $categories = core_course_category::make_categories_list();
         foreach ($courses as $course) {
+            $fullname = external_format_string($course->fullname, $context, true, ["escape" => false]);
             $data[$course->id] = [
                 "id" => $course->id,
-                "fullname" => $categories[$course->category] . ' / ' . external_format_string($course->fullname, true, ["escape" => false])
+                "fullname" => $categories[$course->category] . ' / ' . $fullname,
             ];
         }
 
@@ -96,7 +102,7 @@ class local_assessfreq_external extends external_api {
      * Returns description of method result value
      * @return external_value
      */
-    public static function get_courses_returns() : external_value {
+    public static function get_courses_returns(): external_value {
         return new external_value(PARAM_RAW, 'Course result JSON');
     }
 
@@ -105,7 +111,7 @@ class local_assessfreq_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_activities_parameters() : external_function_parameters {
+    public static function get_activities_parameters(): external_function_parameters {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'The courseid to find'),
         ]);
@@ -114,10 +120,10 @@ class local_assessfreq_external extends external_api {
     /**
      * Returns activities in the course that match search data.
      *
-     * @param $courseid
+     * @param int $courseid The course id we're requesting for.
      * @return string JSON response.
      */
-    public static function get_activities($courseid) : string {
+    public static function get_activities(int $courseid): string {
         global $DB;
         manager::write_close(); // Close session early this is a read op.
 
@@ -130,7 +136,7 @@ class local_assessfreq_external extends external_api {
         // Execute API call.
         $modules = $DB->get_records('course_modules', ['course' => $courseid]);
 
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
 
         $data = [];
         foreach ($modules as $module) {
@@ -144,7 +150,7 @@ class local_assessfreq_external extends external_api {
 
             $data[$module->id] = [
                 "id" => $module->id,
-                "name" => $cm->get_module_type_name() . " - " . $cm->get_name()
+                "name" => $cm->get_module_type_name() . " - " . $cm->get_name(),
             ];
         }
 
@@ -157,7 +163,7 @@ class local_assessfreq_external extends external_api {
      * Returns description of method result value
      * @return external_value
      */
-    public static function get_activities_returns() : external_value {
+    public static function get_activities_returns(): external_value {
         return new external_value(PARAM_RAW, 'Result JSON');
     }
 
@@ -167,7 +173,7 @@ class local_assessfreq_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function set_table_preference_parameters() : external_function_parameters {
+    public static function set_table_preference_parameters(): external_function_parameters {
         return new external_function_parameters([
             'tableid' => new external_value(PARAM_ALPHANUMEXT, 'The table id to set the preference for'),
             'preference' => new external_value(PARAM_ALPHAEXT, 'The table preference to set'),
@@ -183,7 +189,7 @@ class local_assessfreq_external extends external_api {
      * @param string $values The values to set for the preference, encoded as JSON.
      * @return string JSON response.
      */
-    public static function set_table_preference(string $tableid, string $preference, string $values) : string {
+    public static function set_table_preference(string $tableid, string $preference, string $values): string {
         global $SESSION, $PAGE;
 
         // Parameter validation.
@@ -233,7 +239,7 @@ class local_assessfreq_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function process_override_form_parameters() : external_function_parameters {
+    public static function process_override_form_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create copy form, encoded as a json array'),
@@ -251,7 +257,7 @@ class local_assessfreq_external extends external_api {
      * @param int $activityid The activity id to add an override for.
      * @return string
      */
-    public static function process_override_form(string $jsonformdata, string $activitytype, int $activityid) : string {
+    public static function process_override_form(string $jsonformdata, string $activitytype, int $activityid): string {
         global $DB;
 
         // Release session lock.
@@ -269,9 +275,9 @@ class local_assessfreq_external extends external_api {
         parse_str($formdata, $submitteddata);
 
         $processid = 0;
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
         $source = $sources[$activitytype];
-        /* @var $source source_base */
+        /* @var $source source_base for accessing the source class */
         if (method_exists($source, 'process_override_form')) {
             $processid = $source->process_override_form($activityid, $submitteddata);
         }

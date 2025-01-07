@@ -25,184 +25,74 @@
 
 namespace assessfreqreport_heatmap;
 
-use local_assessfreq\frequency;
 use local_assessfreq\report_base;
 
+/**
+ * Main report class.
+ *
+ * @package   assessfreqreport_heatmap
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report extends report_base {
+    /**
+     * Weight is used to define the sort order.
+     */
     const WEIGHT = 10;
 
     /**
-     * @var int
+     * {@inheritDoc}
      */
-    private int $preferenceyear;
-
-    /**
-     * @var mixed|string|null
-     */
-    private $preferencemodules;
-
-    /**
-     * @var string
-     */
-    private string $preferencemetric;
-
-    /**
-     * @var int
-     */
-    private int $heatrangemax = 0;
-
-    /**
-     * @var int
-     */
-    private int $heatrangemin = 0;
-
-    /**
-     * @var int[]
-     */
-    private array $heatrangescales = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0];
-
-    /**
-     * @inheritDoc
-     */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("tab:name", "assessfreqreport_heatmap");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tab_weight() : int {
+    public function get_tab_weight(): int {
         return self::WEIGHT;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tablink() : string {
+    public function get_tablink(): string {
         return 'heatmap';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function has_access() : bool {
+    public function has_access(): bool {
         global $PAGE;
 
         return has_capability('assessfreqreport/heatmap:view', $PAGE->context);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_contents() : string {
+    public function get_contents(): string {
         global $PAGE;
-
-        if ($PAGE->course->id !== SITEID && !get_config('assessfreqreport_heatmap', 'courselevelyearfilter')) {
-            $this->preferenceyear = date('Y', $PAGE->course->startdate);
-        } else {
-            $this->preferenceyear = get_user_preferences('assessfreqreport_heatmap_year_preference', date('Y'));
-        }
-        $this->preferencemodules = json_decode(
-            get_user_preferences('assessfreqreport_heatmap_modules_preference', '["all"]'),
-            true
-        );
-        $this->preferencemetric = get_user_preferences('assessfreqreport_heatmap_metric_preference', 'assess');
 
         $renderer = $PAGE->get_renderer("assessfreqreport_heatmap");
 
-        return $renderer->render_report(
-            $this->preferenceyear,
-            $this->preferencemodules,
-            $this->preferencemetric,
-            $this->get_events(),
-            $this->heatrangescales
-        );
+        return $renderer->render_report();
     }
 
     /**
-     * Get all of the events and heat for each.
-     *
-     * @return array
+     * {@inheritDoc}
      */
-    private function get_events() : array {
-        $frequency = new frequency();
-
-        $orderedmonths = get_months_ordered();
-        $startmonth = array_key_first($orderedmonths);
-
-        $eventlist = $frequency->get_frequency_array(
-            $this->preferenceyear,
-            $startmonth,
-            $this->preferencemetric,
-            $this->preferencemodules
-        );
-
-        foreach ($eventlist as $year) {
-            foreach ($year as $month) {
-                foreach ($month as $day) {
-                    $this->heatrangemax = max($this->heatrangemax, $day['number']);
-                    $this->heatrangemin = min($this->heatrangemax, $day['number']);
-                }
-            }
-        }
-
-        foreach ($eventlist as &$year) {
-            foreach ($year as &$month) {
-                foreach ($month as &$day) {
-                    $heat = $this->get_heat($day['number']);
-                    $day['heat'] = $heat;
-                    if (!$this->heatrangescales[$heat]) {
-                        $this->heatrangescales[$heat] = $day['number'];
-                    }
-                    $this->heatrangescales[$heat] = min($day['number'], $this->heatrangescales[$heat]);
-                }
-            }
-        }
-        return $eventlist;
-    }
-
-    /**
-     * Calculate the heat value based on the ranges available.
-     *
-     * @param $count
-     * @return int
-     */
-    private function get_heat($count) : int {
-        $scalemin = 1;
-
-        if ($count == $this->heatrangemin) {
-            return $scalemin;
-        }
-
-        $scalerange = 5;  // 0 - 5  steps.
-        $localrange = $this->heatrangemax - $this->heatrangemin;
-        if ($localrange <= 0) {
-            return 1;
-        }
-        $localpercent = ($count - $this->heatrangemin) / $localrange;
-        $heat = round(($localpercent * $scalerange) + 1);
-
-        // Clamp values.
-        if ($heat < 1) {
-            $heat = 1;
-        } else if ($heat > 6) {
-            $heat = 6;
-        }
-
-        return $heat;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function get_required_js() : void {
+    protected function get_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd('assessfreqreport_heatmap/heatmap', 'init', [$PAGE->course->id]);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function get_required_css(): void {
         global $PAGE;

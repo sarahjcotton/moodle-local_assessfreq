@@ -29,7 +29,7 @@ use assessfreqsource_assign\output\user_table;
  *
  * @return array
  */
-function assessfreqsource_assign_user_preferences() : array {
+function assessfreqsource_assign_user_preferences(): array {
 
     $preferences['assessfreqsource_assign_table_rows_preference'] = [
         'null' => NULL_NOT_ALLOWED,

@@ -27,33 +27,41 @@ namespace assessfreqsource_forum;
 
 use local_assessfreq\source_base;
 
+/**
+ * Main source class.
+ *
+ * @package   assessfreqsource_forum
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class source extends source_base {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_module() : string {
+    public function get_module(): string {
         return 'forum';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function get_name(): string {
         return get_string("source:name", "assessfreqsource_forum");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return 'duedate';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return ['mod/forum:startdiscussion', 'mod/forum:createattachment', 'mod/forum:replypost', 'mod/forum:viewdiscussion'];
     }
 }

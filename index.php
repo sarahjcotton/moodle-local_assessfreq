@@ -60,5 +60,5 @@ $PAGE->set_title(get_string('pluginname', 'local_assessfreq'));
 $output = $PAGE->get_renderer('local_assessfreq');
 $PAGE->requires->js_call_amd('local_assessfreq/dashboard', 'init');
 
-/* @var $output local_assessfreq\output\renderer */
+/* @var $output local_assessfreq\output\renderer the output renderer for the reports. */
 $output->render_reports();

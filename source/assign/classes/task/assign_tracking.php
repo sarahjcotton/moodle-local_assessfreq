@@ -33,13 +33,20 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/local/assessfreq/lib.php');
 
+/**
+ * A scheduled task to track the process of assignments in the system.
+ *
+ * @package    assessfreqsource_assign
+ * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class assign_tracking extends scheduled_task {
     /**
      * Get a descriptive name for this task (shown to admins).
      *
      * @return string
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string('task:assigntracking', 'assessfreqsource_assign');
     }
 
@@ -47,7 +54,7 @@ class assign_tracking extends scheduled_task {
      * Do the job.
      * Throw exceptions on errors (the job will be retried).
      */
-    public function execute() : void {
+    public function execute(): void {
         global $DB;
         mtrace('assessfreqsource_assign: Processing assignment tracking');
 
@@ -62,10 +69,12 @@ class assign_tracking extends scheduled_task {
 
         foreach ($assignments as $assignment) {
             [, $cm] = get_course_and_cm_from_instance($assignment->id, 'assign');
-            $assignmentusersbyid[$assignment->id] = array_column($frequency->get_event_users_raw($cm->context->id, 'assign'), 'userid');
+            $assignmentusersbyid[$assignment->id] = array_column(
+                $frequency->get_event_users_raw($cm->context->id, 'assign'), 'userid'
+            );
         }
 
-        $loggedinusers = get_loggedin_users(array_unique(array_reduce($assignmentusersbyid, 'array_merge', [])));
+        $loggedinusers = local_assessfreq_get_loggedin_users(array_unique(array_reduce($assignmentusersbyid, 'array_merge', [])));
 
         // For each assignment get the list of users who are elligble to do the assignment.
         foreach ($assignments as $assignment) {

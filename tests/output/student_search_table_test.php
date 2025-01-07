@@ -37,7 +37,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\student_search_table
  */
-class student_search_table_test extends \advanced_testcase {
+final class student_search_table_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.

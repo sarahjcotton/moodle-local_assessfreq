@@ -30,8 +30,15 @@ namespace local_assessfreq;
  */
 abstract class report_base {
 
+    /**
+     * Singleton instances.
+     * @var array
+     */
     private static array $instances = [];
 
+    /**
+     * Contructor.
+     */
     public function __construct() {
         $this->get_required_js();
         $this->get_required_css();
@@ -42,7 +49,7 @@ abstract class report_base {
      *
      * @return report_base
      */
-    public static function get_instance() : report_base {
+    public static function get_instance(): report_base {
         $class = static::class;
         if (!isset(self::$instances[$class])) {
             self::$instances[$class] = new static();
@@ -55,35 +62,34 @@ abstract class report_base {
      * Return the name of the tab being rendered.
      * @return string
      */
-    abstract public function get_name() : string;
+    abstract public function get_name(): string;
 
     /**
      * Return the weight of the tab which is used to determine the loading order with the highest first.
      * @return int
      */
-    abstract public function get_tab_weight() : int;
+    abstract public function get_tab_weight(): int;
 
     /**
      * Get the contents of the page as a string of HTML (template).
      *
      * @return object
      */
-
-    abstract public function get_contents() : string;
+    abstract public function get_contents(): string;
 
     /**
      * Get the anchor link to use for the tabs.
      *
      * @return string
      */
-    abstract public function get_tablink() : string;
+    abstract public function get_tablink(): string;
 
     /**
      * Check if the report is visible to the user.
      *
      * @return bool
      */
-    public function has_access() : bool {
+    public function has_access(): bool {
         return false;
     }
 

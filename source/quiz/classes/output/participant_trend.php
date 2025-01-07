@@ -31,7 +31,7 @@ use PHPUnit\TextUI\XmlConfiguration\PHPUnit;
 /**
  * Renderable for participant trend card.
  *
- * @package    local_assessfreq
+ * @package    assessfreqsource_quiz
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

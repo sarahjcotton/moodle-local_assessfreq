@@ -31,10 +31,27 @@ use html_table_row;
 use html_writer;
 use moodle_url;
 use plugin_renderer_base;
+use stdClass;
 
+/**
+ * Renderer class.
+ *
+ * @package   assessfreqsource_assign
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
-    public function render_activity_dashboard($cm, $course, $assign) {
+    /**
+     * Render the activity dashboard.
+     *
+     * @param stdClass $cm
+     * @param stdClass $course
+     * @param stdClass $assignobject
+     * @return bool|string
+     */
+    public function render_activity_dashboard($cm, $course, $assignobject): bool|string {
 
         $detailstable = new html_table();
         $detailstable->attributes['class'] = 'details-table';
@@ -55,7 +72,7 @@ class renderer extends plugin_renderer_base {
                 ),
                 format_text($course->fullname),
                 ['target' => '_blank']
-            )
+            ),
         ]);
 
         // Open Time.
@@ -88,8 +105,8 @@ class renderer extends plugin_renderer_base {
         // First participant starts.
         $title = new html_table_cell(get_string('detailstable:firstparticipantstart', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        if ($assign->firststart) {
-            $detailstable->data[] = new html_table_row([$title, userdate($assign->firststart)]);
+        if ($assignobject->firststart) {
+            $detailstable->data[] = new html_table_row([$title, userdate($assignobject->firststart)]);
         } else {
             $detailstable->data[] = new html_table_row([$title, 'N/A']);
         }
@@ -97,8 +114,8 @@ class renderer extends plugin_renderer_base {
         // Last participant finishes.
         $title = new html_table_cell(get_string('detailstable:lastparticipantfinish', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        if ($assign->laststart) {
-            $detailstable->data[] = new html_table_row([$title, userdate($assign->laststart)]);
+        if ($assignobject->laststart) {
+            $detailstable->data[] = new html_table_row([$title, userdate($assignobject->laststart)]);
         } else {
             $detailstable->data[] = new html_table_row([$title, 'N/A']);
         }
@@ -114,7 +131,7 @@ class renderer extends plugin_renderer_base {
                 $activityurl,
                 get_string('detailstable:viewsubmissions', 'assessfreqsource_assign'),
                 ['target' => '_blank']
-            )
+            ),
         ]);
 
         $detailstable->data[] = $emptyrow;
@@ -122,37 +139,37 @@ class renderer extends plugin_renderer_base {
         // Participant count.
         $title = new html_table_cell(get_string('detailstable:participantcount', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        $detailstable->data[] = new html_table_row([$title, $assign->count_participants(0)]);
+        $detailstable->data[] = new html_table_row([$title, $assignobject->participant_count]);
 
         // Participant with an override.
         $title = new html_table_cell(get_string('detailstable:participantoverridecount', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        $detailstable->data[] = new html_table_row([$title, $assign->overridecount]);
+        $detailstable->data[] = new html_table_row([$title, $assignobject->overridecount]);
 
         $detailstable->data[] = $emptyrow;
 
         // Submission types.
         $title = new html_table_cell(get_string('detailstable:submissiontypes', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        $detailstable->data[] = new html_table_row([$title, implode(', ', $assign->enabledsubmission_plugins)]);
+        $detailstable->data[] = new html_table_row([$title, implode(', ', $assignobject->enabledsubmission_plugins)]);
 
         // Group submissions enabled.
         $title = new html_table_cell(get_string('detailstable:groupsubmissionenabled', 'assessfreqsource_assign'));
         $title->attributes['class'] = 'title';
-        $detailstable->data[] = new html_table_row([$title, $assign->groupsubmissionenabled]);
+        $detailstable->data[] = new html_table_row([$title, $assignobject->groupsubmissionenabled]);
 
         // Details container.
         $detailscontainer = $this->render_from_template(
             'local_assessfreq/card',
             [
                 'header' => get_string('detailstable:head', 'assessfreqsource_assign'),
-                'contents' => html_writer::table($detailstable)
+                'contents' => html_writer::table($detailstable),
             ]
         );
 
         // Summary container.
-        if ($assign->summarychart['hasdata']) {
-            $contents = $assign->summarychart['chart'];
+        if ($assignobject->summarychart['hasdata']) {
+            $contents = $assignobject->summarychart['chart'];
         } else {
             $contents = get_string('nodata', 'assessfreqsource_assign');
         }
@@ -161,13 +178,13 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('summarychart:head', 'assessfreqsource_assign'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
         // Trend container.
-        if ($assign->trendchart['hasdata']) {
-            $contents = $assign->trendchart['chart'];
+        if ($assignobject->trendchart['hasdata']) {
+            $contents = $assignobject->trendchart['chart'];
         } else {
             $contents = get_string('nodata', 'assessfreqsource_assign');
         }
@@ -176,7 +193,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('participanttrend:head', 'assessfreqsource_assign'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -202,7 +219,7 @@ class renderer extends plugin_renderer_base {
                     'id' => 'assessfreqsource-assign-student',
                     'name' => get_string('studentattempt:head', 'assessfreqsource_assign'),
                     'rows' => [$rows[$preferencerows] => 'true'],
-                ]
+                ],
             ]
         );
     }

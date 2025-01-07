@@ -25,55 +25,70 @@
 
 namespace assessfreqreport_student_search\output;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/tablelib.php');
 
 use assessfreqsource_quiz\Source;
+use coding_exception;
+use html_writer;
 use local_assessfreq\frequency;
+use moodle_exception;
+use moodle_url;
 use renderable;
+use stdClass;
 use table_sql;
 
+/**
+ * Renderable table for student attempt statuses.
+ *
+ * @package   assessfreqreport_student_search
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class user_table extends table_sql implements renderable {
     /**
      * Ammount of time in hours for lookahead values.
      *
      * @var int $hoursahead.
      */
-    private $hoursahead;
+    private int $hoursahead;
 
     /**
      * Ammount of time in hours for lookbehind values.
      *
      * @var int $hoursahead.
      */
-    private $hoursbehind;
+    private int $hoursbehind;
 
     /**
      * The timestamp used when getting quiz data.
      *
      * @var int $now.
      */
-    private $now;
+    private int $now;
 
     /**
      *
      * @var string $search The string to search for in the table data.
      */
-    private $search;
+    private string $search;
 
     /**
      * @var string[] Extra fields to display.
      */
-    protected $extrafields;
+    protected array $extrafields;
 
     /**
-     * report_table constructor.
+     * Report table contrustor.
      *
-     * @param string $baseurl Base URL of the page that contains the table.
-     * @param int $contextid The context id for the context the table is being displayed in.
-     * @param string $search The string to search for in the table.
-     * @param int $page the page number for pagination.
-     *
-     * @throws \coding_exception
+     * @param string $baseurl
+     * @param int $contextid
+     * @param string $search
+     * @param int $page
+     * @param int $now
+     * @throws coding_exception
      */
     public function __construct(
         string $baseurl,
@@ -86,9 +101,6 @@ class user_table extends table_sql implements renderable {
 
         $this->hoursahead = (int)get_user_preferences('assessfreqreport_student_search_hoursahead_preference', 8);
         $this->hoursbehind = (int)get_user_preferences('assessfreqreport_student_search_hoursbehind_preference', 1);
-
-        $this->hoursahead = 8;
-        $this->hoursbehind = 8;
 
         $this->search = $search;
         $this->set_attribute('id', 'local_assessfreq_ackreport_table');
@@ -128,9 +140,9 @@ class user_table extends table_sql implements renderable {
     /**
      * Get content for title column.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the video field.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function col_fullname($row): string {
         global $OUTPUT;
@@ -142,15 +154,15 @@ class user_table extends table_sql implements renderable {
      * Get content for time start column.
      * Displays the user attempt start time.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timestart($row) {
+    public function col_timestart(stdClass $row): string {
         if ($row->timestart == 0) {
-            $content = \html_writer::span(get_string('student_search:na', 'assessfreqreport_student_search'));
+            $content = html_writer::span(get_string('student_search:na', 'assessfreqreport_student_search'));
         } else {
             $datetime = userdate($row->timestart, get_string('student_search:trenddatetime', 'assessfreqreport_student_search'));
-            $content = \html_writer::span($datetime);
+            $content = html_writer::span($datetime);
         }
 
         return $content;
@@ -160,19 +172,19 @@ class user_table extends table_sql implements renderable {
      * Get content for time finish column.
      * Displays the user attempt finish time.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timefinish($row) {
+    public function col_timefinish(stdClass $row): string {
         if ($row->timefinish == 0 && $row->timestart == 0) {
-            $content = \html_writer::span(get_string('student_search:na', 'assessfreqreport_student_search'));
+            $content = html_writer::span(get_string('student_search:na', 'assessfreqreport_student_search'));
         } else if ($row->timefinish == 0 && $row->timestart > 0) {
             $time = $row->timestart + $row->timelimit;
             $datetime = userdate($time, get_string('student_search:trenddatetime', 'assessfreqreport_student_search'));
-            $content = \html_writer::span($datetime, 'local-assessfreq-disabled');
+            $content = html_writer::span($datetime, 'local-assessfreq-disabled');
         } else {
             $datetime = userdate($row->timefinish, get_string('student_search:trenddatetime', 'assessfreqreport_student_search'));
-            $content = \html_writer::span($datetime);
+            $content = html_writer::span($datetime);
         }
 
         return $content;
@@ -182,10 +194,12 @@ class user_table extends table_sql implements renderable {
      * Get content for state column.
      * Displays the users state in the quiz.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_state($row) {
+    public function col_state(stdClass $row): string {
+
+        $color = '';
         if ($row->state == 'notloggedin') {
             $color = 'background: ' . get_config('assessfreqreport_student_search', 'notloggedincolor');
         } else if ($row->state == 'loggedin') {
@@ -202,7 +216,7 @@ class user_table extends table_sql implements renderable {
             $color = 'background: ' . get_config('assessfreqreport_student_search', 'finishedcolor');
         }
 
-        $content = \html_writer::span('', 'local-assessfreq-status-icon', ['style' => $color]);
+        $content = html_writer::span('', 'local-assessfreq-status-icon', ['style' => $color]);
         $content .= get_string('student_search:'.$row->state, 'assessfreqreport_student_search');
 
         return $content;
@@ -245,10 +259,10 @@ class user_table extends table_sql implements renderable {
     /**
      * Return HTML for common column actions.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string
      */
-    protected function get_common_column_actions(\stdClass $row): string {
+    protected function get_common_column_actions(stdClass $row): string {
         global $OUTPUT;
         $actions = '';
         if (
@@ -259,7 +273,7 @@ class user_table extends table_sql implements renderable {
             || $row->state == 'overdue'
         ) {
             $classes = 'action-icon';
-            $attempturl = new \moodle_url('/mod/quiz/review.php', ['attempt' => $row->attemptid]);
+            $attempturl = new moodle_url('/mod/quiz/review.php', ['attempt' => $row->attemptid]);
             $attributes = [
                 'class' => $classes,
                 'id' => 'tool-assessfreq-attempt-' . $row->id,
@@ -276,11 +290,11 @@ class user_table extends table_sql implements renderable {
             ];
         }
         $icon = $OUTPUT->render(new \pix_icon('i/search', ''));
-        $actions .= \html_writer::link($attempturl, $icon, $attributes);
+        $actions .= html_writer::link($attempturl, $icon, $attributes);
 
-        $profileurl = new \moodle_url('/user/profile.php', ['id' => $row->id]);
+        $profileurl = new moodle_url('/user/profile.php', ['id' => $row->id]);
         $icon = $OUTPUT->render(new \pix_icon('i/completion_self', ''));
-        $actions .= \html_writer::link($profileurl, $icon, [
+        $actions .= html_writer::link($profileurl, $icon, [
             'class' => 'action-icon',
             'id' => 'tool-assessfreq-profile-' . $row->id,
             'data-toggle' => 'tooltip',
@@ -288,9 +302,9 @@ class user_table extends table_sql implements renderable {
             'title' => get_string('student_search:userprofile', 'assessfreqreport_student_search'),
         ]);
 
-        $logurl = new \moodle_url('/report/log/user.php', ['id' => $row->id, 'course' => 1, 'mode' => 'all']);
+        $logurl = new moodle_url('/report/log/user.php', ['id' => $row->id, 'course' => 1, 'mode' => 'all']);
         $icon = $OUTPUT->render(new \pix_icon('i/report', ''));
-        $actions .= \html_writer::link($logurl, $icon, [
+        $actions .= html_writer::link($logurl, $icon, [
             'class' => 'action-icon',
             'id' => 'tool-assessfreq-log-' . $row->id,
             'data-toggle' => 'tooltip',
@@ -307,47 +321,45 @@ class user_table extends table_sql implements renderable {
      * the list has the potential to increase in the future and we don't want to have to remember to add
      * a new method to this class. We also don't want to pollute this class with unnecessary methods.
      *
-     * @param string $colname The column name
-     * @param \stdClass $data
+     * @param string $column The column name
+     * @param stdClass $row
      * @return string
      */
-    public function other_cols($colname, $data) {
+    public function other_cols($column, $row): string {
         // Do not process if it is not a part of the extra fields.
-        if (!in_array($colname, $this->extrafields)) {
+        if (!in_array($column, $this->extrafields)) {
             return '';
         }
 
-        return s($data->{$colname});
+        return s($row->{$column});
     }
 
     /**
      * Displays quiz name
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_quizname($row) {
+    public function col_quizname(stdClass $row): string {
 
-        $quizurl = new \moodle_url('/mod/quiz/view.php', ['id' => $row->quizinstance]);
-        $quizlink = \html_writer::link($quizurl, format_string($row->quizname, true));
-
-        return $quizlink;
+        $quizurl = new moodle_url('/mod/quiz/view.php', ['id' => $row->quizinstance]);
+        return html_writer::link($quizurl, format_string($row->quizname, true));
     }
 
     /**
      * Get content for time open column.
      * Displays when the user attempt opens.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeopen($row) {
+    public function col_timeopen(stdClass $row): string {
         $datetime = userdate($row->timeopen, get_string('student_search:trenddatetime', 'assessfreqreport_student_search'));
 
         if ($row->timeopen != $row->quiztimeopen) {
-            $content = \html_writer::span($datetime, 'local-assessfreq-override-status');
+            $content = html_writer::span($datetime, 'local-assessfreq-override-status');
         } else {
-            $content = \html_writer::span($datetime);
+            $content = html_writer::span($datetime);
         }
 
         return $content;
@@ -357,16 +369,16 @@ class user_table extends table_sql implements renderable {
      * Get content for time close column.
      * Displays when the user attempt closes.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeclose($row) {
+    public function col_timeclose(stdClass $row): string {
         $datetime = userdate($row->timeclose, get_string('student_search:trenddatetime', 'assessfreqreport_student_search'));
 
         if ($row->timeclose != $row->quiztimeclose) {
-            $content = \html_writer::span($datetime, 'local-assessfreq-override-status');
+            $content = html_writer::span($datetime, 'local-assessfreq-override-status');
         } else {
-            $content = \html_writer::span($datetime);
+            $content = html_writer::span($datetime);
         }
 
         return $content;
@@ -376,19 +388,19 @@ class user_table extends table_sql implements renderable {
      * Get content for time limit column.
      * Displays the time the user has to finsih the quiz.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timelimit($row) {
+    public function col_timelimit(stdClass $row): string {
         if ($row->timelimit == '0') {
             return '-';
         }
         $timelimit = format_time($row->timelimit);
 
         if ($row->timelimit != $row->quiztimelimit) {
-            $content = \html_writer::span($timelimit, 'local-assessfreq-override-status');
+            $content = html_writer::span($timelimit, 'local-assessfreq-override-status');
         } else {
-            $content = \html_writer::span($timelimit);
+            $content = html_writer::span($timelimit);
         }
 
         return $content;
@@ -398,26 +410,12 @@ class user_table extends table_sql implements renderable {
      * Get content for actions column.
      * Displays the actions for the user.
      *
-     * @param \stdClass $row
+     * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_actions($row) {
-        global $OUTPUT;
+    public function col_actions(stdClass $row): string {
 
-        $manage = '';
-
-        $icon = $OUTPUT->render(new \pix_icon('i/duration', ''));
-        //$manage .= \html_writer::link('#', $icon, [
-        //    'class' => 'action-icon override',
-        //    'id' => 'tool-assessfreq-override-' . $row->id . '-' . $row->quiz,
-        //    'data-toggle' => 'tooltip',
-        //    'data-placement' => 'top',
-        //    'title' => get_string('student_search:useroverride', 'assessfreqreport_student_search'),
-        //]);
-
-        $manage .= $this->get_common_column_actions($row);
-
-        return $manage;
+        return $this->get_common_column_actions($row);
     }
 
     /**
@@ -463,7 +461,7 @@ class user_table extends table_sql implements renderable {
      * @param int $pagesize size of page for paginated displayed table.
      * @param bool $useinitialsbar do you want to use the initials bar.
      */
-    public function query_db($pagesize, $useinitialsbar = false) {
+    public function query_db($pagesize, $useinitialsbar = false): void {
         global $CFG, $DB;
 
         $maxlifetime = $CFG->sessiontimeout;
@@ -625,7 +623,7 @@ class user_table extends table_sql implements renderable {
      * @param int $index numerical index of the column.
      * @return string HTML fragment.
      */
-    protected function show_hide_link($column, $index) {
+    protected function show_hide_link($column, $index): string {
         return '';
     }
 }

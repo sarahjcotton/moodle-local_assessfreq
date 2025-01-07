@@ -17,7 +17,7 @@
 /**
  * A scheduled task to track the process of quizzes in the system.
  *
- * @package    local_assessfreq
+ * @package    assessfreqsource_quiz
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/local/assessfreq/lib.php');
 /**
  * A scheduled task to track the process of quizzes in the system.
  *
- * @package    local_assessfreq
+ * @package    assessfreqsource_quiz
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,7 +46,7 @@ class quiz_tracking extends scheduled_task {
      *
      * @return string
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string('task:quiztracking', 'assessfreqsource_quiz');
     }
 
@@ -54,7 +54,7 @@ class quiz_tracking extends scheduled_task {
      * Do the job.
      * Throw exceptions on errors (the job will be retried).
      */
-    public function execute() : void {
+    public function execute(): void {
         global $DB;
         if (!PHPUNIT_TEST) {
             mtrace('assessfreqsource_quiz: Processing quiz tracking');
@@ -78,7 +78,7 @@ class quiz_tracking extends scheduled_task {
             $quizusersbyquizid[$quiz->id] = array_column($frequency->get_event_users_raw($cm->context->id, 'quiz'), 'userid');
         }
 
-        $loggedinusers = get_loggedin_users(array_unique(array_reduce($quizusersbyquizid, 'array_merge', [])));
+        $loggedinusers = local_assessfreq_get_loggedin_users(array_unique(array_reduce($quizusersbyquizid, 'array_merge', [])));
 
         // For each quiz get the list of users who are elligble to do the quiz.
         foreach ($quizzes as $quiz) {

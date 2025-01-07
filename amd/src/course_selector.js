@@ -23,7 +23,7 @@
  * @licensehttp://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/ajax', 'core/notification'], function (Ajax, Notification) {
+define(['core/ajax'], function(Ajax) {
 
     /**
      * Module level variables.

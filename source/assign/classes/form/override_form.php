@@ -35,6 +35,14 @@ global $CFG;
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/mod/assign/override_form.php');
 
+/**
+ * Form to add override for assignment.
+ *
+ * @package   assessfreqsource_assign
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class override_form extends assign_override_form {
 
     /**
@@ -62,7 +70,7 @@ class override_form extends assign_override_form {
      * {@inheritDoc}
      * @see assign_override_form::definition()
      */
-    protected function definition() {
+    protected function definition(): void {
         parent::definition();
         $mform = $this->_form;
         $mform->freeze('userid');

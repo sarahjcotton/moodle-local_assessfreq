@@ -31,10 +31,27 @@ use html_table_row;
 use html_writer;
 use moodle_url;
 use plugin_renderer_base;
+use stdClass;
 
+/**
+ * Main renderer.
+ *
+ * @package   assessfreqsource_quiz
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
-    public function render_activity_dashboard($cm, $course, $quiz) {
+    /**
+     * Render the activity dashboard.
+     *
+     * @param stdClass $cm
+     * @param stdClass $course
+     * @param stdClass $quiz
+     * @return bool|string
+     */
+    public function render_activity_dashboard($cm, $course, $quiz): bool|string {
 
         $detailstable = new html_table();
         $detailstable->attributes['class'] = 'details-table';
@@ -104,7 +121,7 @@ class renderer extends plugin_renderer_base {
                 $activityurl,
                 get_string('detailstable:viewsubmissions', 'assessfreqsource_quiz'),
                 ['target' => '_blank']
-            )
+            ),
         ]);
 
         $detailstable->data[] = $emptyrow;
@@ -136,7 +153,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('detailstable:head', 'assessfreqsource_quiz'),
-                'contents' => html_writer::table($detailstable)
+                'contents' => html_writer::table($detailstable),
             ]
         );
 
@@ -151,7 +168,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('summarychart:head', 'assessfreqsource_quiz'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -166,7 +183,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('participanttrend:head', 'assessfreqsource_quiz'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -192,7 +209,7 @@ class renderer extends plugin_renderer_base {
                     'id' => 'assessfreqsource-quiz-student',
                     'name' => get_string('studentattempt:head', 'assessfreqsource_quiz'),
                     'rows' => [$rows[$preferencerows] => 'true'],
-                ]
+                ],
             ]
         );
     }

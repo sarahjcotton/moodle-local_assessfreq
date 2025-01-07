@@ -23,51 +23,40 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Report - Heatmap';
-$string['pluginsettings'] = 'Report - Heatmap - Settings';
-
-$string['tab:name'] = 'Heatmap';
-
-$string['heatmap:view'] = 'Ability to view the heatmap report.';
-
-$string['filter:selectyear'] = 'Select year';
-$string['filter:selectassessment'] = 'Select assessment type';
-$string['filter:closeapply'] = 'Close and apply';
-$string['filter:header'] = 'Filters';
-$string['filter:submit'] = 'Filter';
-$string['filter:metric:assess'] = 'By number of assessments';
-$string['filter:metric:students'] = 'By number of students with assessments';
-$string['filter:selectmetric'] = 'Select metric';
-$string['filter:yearselection'] = 'Heatmap for year: from {$a}';
-$string['filter:moduleselection'] = 'Module selection: {$a}';
-$string['filter:metricselection'] = 'Metric selected: {$a}';
-
-$string['report:scales'] = 'Scale: ';
-$string['report:usage_guidlines'] = '';
-
-$string['overview:title'] = 'Daily schedule';
-$string['overview:students'] = 'Students';
-$string['overview:timelimit'] = 'Time limit (minutes)';
-$string['overview:dashboard'] = 'View Activity Dashboard';
-$string['overview:time'] = 'Time';
-$string['overview:na'] = 'N/A';
-$string['overview:open'] = 'Open';
-$string['overview:close'] = 'Close';
-
 $string['download:activity'] = 'Activity';
 $string['download:close'] = 'Close';
 $string['download:open'] = 'Open';
 $string['download:students'] = 'Students';
 $string['download:title'] = 'Title';
 $string['download:url'] = 'URL';
+$string['filter:closeapply'] = 'Close and apply';
+$string['filter:header'] = 'Filters';
+$string['filter:metric:assess'] = 'By number of assessments';
+$string['filter:metric:students'] = 'By number of students with assessments';
+$string['filter:metricselection'] = 'Metric selected: {$a}';
+$string['filter:moduleselection'] = 'Module selection: {$a}';
+$string['filter:selectassessment'] = 'Select assessment type';
+$string['filter:selectmetric'] = 'Select metric';
+$string['filter:selectyear'] = 'Select year';
+$string['filter:submit'] = 'Filter';
+$string['filter:yearselection'] = 'Heatmap for year: from {$a}';
+$string['heatmap:view'] = 'Ability to view the heatmap report.';
+$string['overview:close'] = 'Close';
+$string['overview:dashboard'] = 'View Activity Dashboard';
+$string['overview:na'] = 'N/A';
+$string['overview:open'] = 'Open';
+$string['overview:students'] = 'Students';
+$string['overview:time'] = 'Time';
+$string['overview:timelimit'] = 'Time limit (minutes)';
+$string['overview:title'] = 'Daily schedule';
+$string['pluginname'] = 'Report - Heatmap';
+$string['pluginsettings'] = 'Report - Heatmap - Settings';
 
+$string['report:scales'] = 'Scale: ';
+$string['report:usage_guidlines'] = '';
 $string['settings:courselevelyearfilter'] = 'Include year filter at course level';
 $string['settings:courselevelyearfilter_desc'] = 'If courses are run annually then the year filter is not required. Course startdate will be used instead.';
 $string['settings:filter_settings'] = 'Filter settings';
-$string['settings:start_month'] = 'Start month';
-$string['settings:start_month_desc'] = 'Specify the month that the heatmap year should start from.';
-$string['settings:heatheading'] = 'Heatmap colors';
-$string['settings:heatheading_desc'] = 'These settings allow you to configure the colors used in the heatmap';
 $string['settings:heat1'] = ' First heat color';
 $string['settings:heat1_desc'] = 'Select color for the first level of the frequency heatmap';
 $string['settings:heat2'] = 'Second heat color';
@@ -80,3 +69,14 @@ $string['settings:heat5'] = 'Fifth heat color';
 $string['settings:heat5_desc'] = 'Select color for the fifth level of the frequency heatmap';
 $string['settings:heat6'] = 'Sixth heat color';
 $string['settings:heat6_desc'] = 'Select color for the sixth level of the frequency heatmap';
+$string['settings:heatheading'] = 'Heatmap colors';
+$string['settings:heatheading_desc'] = 'These settings allow you to configure the colors used in the heatmap';
+$string['settings:start_month'] = 'Start month';
+$string['settings:start_month_desc'] = 'Specify the month that the heatmap year should start from.';
+$string['tab:name'] = 'Heatmap';
+
+
+
+
+
+

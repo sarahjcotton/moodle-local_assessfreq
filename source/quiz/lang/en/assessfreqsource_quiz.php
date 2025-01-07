@@ -23,63 +23,63 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Source - Quiz';
-
-$string['source:name'] = 'Quiz';
-$string['nodata'] = 'No data found';
-$string['na'] = 'N/A';
-$string['task:quiztracking'] = 'Quiz tracking task';
-
-$string['settings:windowexclusion'] = 'Window Exclusion';
-$string['settings:windowexclusion_desc'] = 'This setting will allow for quizzes that run for longer than the defined period to be excluded from "in progress" checks.
-This is useful for when a large number of quizzes have been created with large time windows as these affect the performance of reports.';
-
-$string['detailstable:course'] = 'Course';
-$string['detailstable:opentime'] = 'Open Time';
 $string['detailstable:closetime'] = 'Close Time';
-$string['detailstable:timelimit'] = 'Time Limit';
+$string['detailstable:course'] = 'Course';
 $string['detailstable:firstparticipantstart'] = 'First participant Starts';
+$string['detailstable:head'] = 'Quiz details';
 $string['detailstable:lastparticipantfinish'] = 'Last participant Finished';
-$string['detailstable:submissions'] = 'Submissions';
+$string['detailstable:opentime'] = 'Open Time';
 $string['detailstable:participantcount'] = 'Participant Count';
 $string['detailstable:participantoverridecount'] = 'Participants with an override';
 $string['detailstable:questioncount'] = 'Questions in quiz';
 $string['detailstable:questiontypecount'] = 'Question types in quiz';
+$string['detailstable:submissions'] = 'Submissions';
+$string['detailstable:timelimit'] = 'Time Limit';
 $string['detailstable:viewsubmissions'] = 'View quiz results';
-$string['detailstable:head'] = 'Quiz details';
-
-$string['summarychart:head'] = 'Participant summary';
-$string['summarychart:participantsummary'] = 'Participant summary';
-$string['summarychart:notloggedin'] = 'Not logged in';
-$string['summarychart:loggedin'] = 'Logged in';
-$string['summarychart:inprogress'] = 'In progress';
-$string['summarychart:finished'] = 'Finished';
-
+$string['inprogress:assessments'] = 'Quizzes : {$a->assessments} / Participants : {$a->participants}';
+$string['na'] = 'N/A';
+$string['nodata'] = 'No data found';
+$string['participanttrend:finished'] = 'Finished';
 $string['participanttrend:head'] = 'Participant trend';
+$string['participanttrend:inprogress'] = 'In progress';
+$string['participanttrend:loggedin'] = 'Logged in';
+$string['participanttrend:notloggedin'] = 'Not logged in';
 $string['participanttrend:participants'] = 'Participants';
 $string['participanttrend:participantsummary'] = 'Participant summary';
-$string['participanttrend:notloggedin'] = 'Not logged in';
-$string['participanttrend:loggedin'] = 'Logged in';
-$string['participanttrend:inprogress'] = 'In progress';
-$string['participanttrend:finished'] = 'Finished';
+$string['pluginname'] = 'Source - Quiz';
 
-$string['studentattempt:head'] = 'Student attempt status';
-$string['studentattempt:trenddatetime'] = '%H:%M, %d-%m-%y';
-$string['studentattempt:useroverride'] = 'Add user override';
-$string['studentattempt:quiztimeopen'] = 'Open time';
-$string['studentattempt:quiztimeclose'] = 'Close time';
-$string['studentattempt:quiztimelimit'] = 'Time limit';
-$string['studentattempt:quiztimestart'] = 'Start';
-$string['studentattempt:quiztimefinish'] = 'Finish';
-$string['studentattempt:status'] = 'Status';
+$string['settings:windowexclusion'] = 'Window Exclusion';
+$string['settings:windowexclusion_desc'] = 'This setting will allow for quizzes that run for longer than the defined period to be excluded from "in progress" checks.
+This is useful for when a large number of quizzes have been created with large time windows as these affect the performance of reports.';
+$string['source:name'] = 'Quiz';
 $string['studentattempt:actions'] = 'Actions';
-$string['studentattempt:notloggedin'] = 'Not logged in';
-$string['studentattempt:loggedin'] = 'Logged in';
-$string['studentattempt:inprogress'] = 'In progress';
 $string['studentattempt:finished'] = 'Finished';
+$string['studentattempt:head'] = 'Student attempt status';
+$string['studentattempt:inprogress'] = 'In progress';
+$string['studentattempt:loggedin'] = 'Logged in';
 $string['studentattempt:na'] = 'N/A';
+$string['studentattempt:notloggedin'] = 'Not logged in';
+$string['studentattempt:quiztimeclose'] = 'Close time';
+$string['studentattempt:quiztimefinish'] = 'Finish';
+$string['studentattempt:quiztimelimit'] = 'Time limit';
+$string['studentattempt:quiztimeopen'] = 'Open time';
+$string['studentattempt:quiztimestart'] = 'Start';
+$string['studentattempt:status'] = 'Status';
+$string['studentattempt:trenddatetime'] = '%H:%M, %d-%m-%y';
 $string['studentattempt:userattempt'] = 'User attempt';
-$string['studentattempt:userprofile'] = 'User profile';
 $string['studentattempt:userlogs'] = 'User logs';
+$string['studentattempt:useroverride'] = 'Add user override';
+$string['studentattempt:userprofile'] = 'User profile';
+$string['summarychart:finished'] = 'Finished';
+$string['summarychart:head'] = 'Participant summary';
+$string['summarychart:inprogress'] = 'In progress';
+$string['summarychart:loggedin'] = 'Logged in';
+$string['summarychart:notloggedin'] = 'Not logged in';
+$string['summarychart:participantsummary'] = 'Participant summary';
+$string['task:quiztracking'] = 'Quiz tracking task';
 
-$string['inprogress:assessments'] = 'Quizzes : {$a->assessments} / Participants : {$a->participants}';
+
+
+
+
+

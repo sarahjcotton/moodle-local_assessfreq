@@ -24,23 +24,32 @@
 
 namespace assessfreqsource_quiz\output;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/tablelib.php');
 
 use coding_exception;
 use context;
-use context_system;
 use core\dml\sql_join;
 use core_user\fields;
 use html_writer;
 use local_assessfreq\frequency;
+use moodle_exception;
 use renderable;
 use stdClass;
 use table_sql;
 
+/**
+ * Renderable table for quiz dashboard users.
+ *
+ * @package    assessfreqsource_quiz
+ * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class user_table extends table_sql implements renderable {
 
     /**
-     * @var integer $quizid The ID of the braodcast to get the acknowledgements for.
+     * @var int $quizid The ID of the braodcast to get the acknowledgements for.
      */
     private int $quizid;
 
@@ -58,23 +67,22 @@ class user_table extends table_sql implements renderable {
     /**
      * @var int $timeopen
      */
-    private $timeopen;
+    private int $timeopen;
 
     /**
      * @var int $timeclose
      */
-    private $timeclose;
+    private int $timeclose;
 
     /**
      * @var int $timelimit
      */
-    private $timelimit;
+    private int $timelimit;
 
     /**
-     * @var bool|context|context_system|null The context.
+     * @var bool|context The context.
      */
-    private $context;
-
+    private bool|context $context;
 
     /**
      * report_table constructor.
@@ -137,7 +145,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string
      */
-    public function other_cols($column, $row) : string {
+    public function other_cols($column, $row): string {
         // Do not process if it is not a part of the extra fields.
         if (!in_array($column, $this->extrafields)) {
             return '';
@@ -153,7 +161,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeopen(stdClass $row) : string {
+    public function col_timeopen(stdClass $row): string {
         if (!$row->timeopen) {
             return '-';
         }
@@ -176,7 +184,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeclose(stdClass $row) : string {
+    public function col_timeclose(stdClass $row): string {
         if (!$row->timeclose) {
             return '-';
         }
@@ -198,7 +206,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timelimit(stdClass $row) : string {
+    public function col_timelimit(stdClass $row): string {
         if (!$row->timeclose) {
             return '-';
         }
@@ -221,7 +229,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_actions(stdClass $row) : string {
+    public function col_actions(stdClass $row): string {
         global $OUTPUT;
 
         $manage = '';
@@ -247,7 +255,7 @@ class user_table extends table_sql implements renderable {
      * @param int $pagesize size of page for paginated displayed table.
      * @param bool $useinitialsbar do you want to use the initials bar.
      */
-    public function query_db($pagesize, $useinitialsbar = false) {
+    public function query_db($pagesize, $useinitialsbar = false): void {
         global $CFG, $DB;
 
         $maxlifetime = $CFG->sessiontimeout;
@@ -351,9 +359,9 @@ class user_table extends table_sql implements renderable {
      *
      * @param stdClass $row
      * @return string html used to display the video field.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
-    public function col_fullname($row) : string {
+    public function col_fullname($row): string {
         global $OUTPUT;
 
         return $OUTPUT->user_picture($row, ['size' => 35, 'includefullname' => true]);
@@ -366,7 +374,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timestart(stdClass $row) : string {
+    public function col_timestart(stdClass $row): string {
         if ($row->timestart == 0) {
             $content = html_writer::span(get_string('studentattempt:na', 'assessfreqsource_quiz'));
         } else {
@@ -384,7 +392,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timefinish($row) {
+    public function col_timefinish(stdClass $row): string {
         if ($row->timefinish == 0 && $row->timestart == 0) {
             $content = html_writer::span(get_string('studentattempt:na', 'assessfreqsource_quiz'));
         } else if ($row->timefinish == 0 && $row->timestart > 0) {
@@ -406,7 +414,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_state(stdClass $row) : string {
+    public function col_state(stdClass $row): string {
 
         $color = 'background: ' . get_config('assessfreqreport_activity_dashboard', 'notloggedincolor');
         if ($row->state == 'notloggedin') {
@@ -436,7 +444,7 @@ class user_table extends table_sql implements renderable {
      *
      * @return array
      */
-    protected function get_common_headers() : array {
+    protected function get_common_headers(): array {
         return [
             get_string('studentattempt:quiztimeopen', 'assessfreqsource_quiz'),
             get_string('studentattempt:quiztimeclose', 'assessfreqsource_quiz'),
@@ -521,14 +529,5 @@ class user_table extends table_sql implements renderable {
             'title' => get_string('studentattempt:userlogs', 'assessfreqsource_quiz'),
         ]);
         return $actions;
-    }
-
-    public function get_report() {
-        ob_start();
-        $this->out(50, true);
-        $participanttablehtml = ob_get_contents();
-        ob_end_clean();
-
-        return $participanttablehtml;
     }
 }

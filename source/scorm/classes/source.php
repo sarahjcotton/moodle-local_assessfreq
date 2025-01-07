@@ -27,40 +27,48 @@ namespace assessfreqsource_scorm;
 
 use local_assessfreq\source_base;
 
+/**
+ * Main source class.
+ *
+ * @package   assessfreqsource_scorm
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class source extends source_base {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_module() : string {
+    public function get_module(): string {
         return 'scorm';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("source:name", "assessfreqsource_scorm");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_open_field() : string {
+    public function get_open_field(): string {
         return 'timeopen';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return 'timeclose';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return ['mod/scorm:savetrack', 'mod/scorm:viewscores'];
     }
 }

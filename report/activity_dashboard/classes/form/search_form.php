@@ -17,7 +17,7 @@
 /**
  * Form to search for activities.
  *
- * @package    local_assessfreq
+ * @package    assessfreqreport_activity_dashboard
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,7 +34,7 @@ require_once("$CFG->libdir/formslib.php");
 /**
  * Form to search for activities.
  *
- * @package    local_assessfreq
+ * @package    assessfreqreport_activity_dashboard
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

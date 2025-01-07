@@ -29,6 +29,7 @@ use assessfreqsource_quiz\form\override_form;
 use assessfreqsource_quiz\output\participant_summary;
 use assessfreqsource_quiz\output\participant_trend;
 use assessfreqsource_quiz\output\renderer;
+use context;
 use context_module;
 use html_writer;
 use local_assessfreq\frequency;
@@ -47,58 +48,66 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
-class Source extends source_base {
+/**
+ * Main source class.
+ *
+ * @package   assessfreqsource_quiz
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class source extends source_base {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_module() : string {
+    public function get_module(): string {
         return 'quiz';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("source:name", "assessfreqsource_quiz");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_timelimit_field() : string {
+    public function get_timelimit_field(): string {
         return 'timelimit';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_open_field() : string {
+    public function get_open_field(): string {
         return 'timeopen';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return 'timeclose';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return ['mod/quiz:attempt', 'mod/quiz:view'];
     }
 
     /**
      * Get the activity dashboard to be rendered in assessfreqreport_activity_dashboard plugin.
      *
-     * @param $cm
-     * @param $course
+     * @param stdClass $cm
+     * @param stdClass $course
      * @return string
      */
-    public function get_activity_dashboard($cm, $course) : string {
+    public function get_activity_dashboard($cm, $course): string {
         global $PAGE, $DB;
 
         $quizobject = new quiz_settings(
@@ -159,14 +168,14 @@ class Source extends source_base {
             $this->get_tracking($quizobject->get_quizid(), true)
         );
 
-        /* @var $renderer renderer */
+        /* @var $renderer renderer renderer class */
         $renderer = $PAGE->get_renderer("assessfreqsource_quiz");
         $PAGE->requires->js_call_amd(
             'assessfreqsource_quiz/activity_dashboard',
             'init',
             [
                 $quizobject->get_context()->id,
-                $quizobject->get_quizid()
+                $quizobject->get_quizid(),
             ]
         );
         return $renderer->render_activity_dashboard($cm, $course, $quiz);
@@ -182,7 +191,7 @@ class Source extends source_base {
      * @param quiz_settings $quizobject
      * @return stdClass $questions The question data for the quiz.
      */
-    private function get_quiz_questions(quiz_settings $quizobject) : stdClass {
+    private function get_quiz_questions(quiz_settings $quizobject): stdClass {
         $questions = new stdClass();
         $types = [];
         $questioncount = 0;
@@ -213,8 +222,10 @@ class Source extends source_base {
      * @param int $now Timestamp to use for reference for time.
      * @param int $hoursahead
      * @param int $hoursbehind
+     * @param bool $returnstring
+     * @return array|string
      */
-    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind, bool $returnstring = true) {
+    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind, bool $returnstring = true): array|string {
         // Get tracked quizzes.
         $trackedquizzes = $this->get_tracked_quizzes_with_overrides($now, $hoursahead * HOURSECS, $hoursbehind * HOURSECS);
 
@@ -243,9 +254,11 @@ class Source extends source_base {
      * Get data for all inprogress quizzes.
      *
      * @param int $now
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array|array[]
      */
-    public function get_inprogress_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_inprogress_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         return $this->get_quiz_summaries($now, $hoursahead, $hoursbehind);
     }
@@ -254,9 +267,11 @@ class Source extends source_base {
      * Get all upcoming data.
      *
      * @param int $now
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array|array[]
      */
-    public function get_upcoming_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_upcoming_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         return $this->get_quiz_summaries($now, $hoursahead, $hoursbehind);
     }
@@ -264,13 +279,13 @@ class Source extends source_base {
     /**
      * Get the override form for the modal.
      *
-     * @param $quizid
-     * @param $context
-     * @param $userid
-     * @param $formdata
+     * @param int $quizid
+     * @param context $context
+     * @param int $userid
+     * @param array $formdata
      * @return override_form
      */
-    public function get_override_form($quizid, $context, $userid, $formdata) : override_form {
+    public function get_override_form($quizid, $context, $userid, $formdata): override_form {
         global $DB;
 
         require_capability("mod/quiz:manageoverrides", $context);
@@ -289,7 +304,7 @@ class Source extends source_base {
         }
 
         // Merge defaults with data.
-        $keys = array('timeopen', 'timeclose', 'timelimit', 'attempts', 'password');
+        $keys = ['timeopen', 'timeclose', 'timelimit', 'attempts', 'password'];
         foreach ($keys as $key) {
             if (!isset($data->{$key})) {
                 $data->{$key} = $instance->{$key};
@@ -304,11 +319,11 @@ class Source extends source_base {
     /**
      * Process the override form from the Ajax webservice call.
      *
-     * @param $activityid
-     * @param $submitteddata
+     * @param int $activityid
+     * @param array $submitteddata
      * @return int
      */
-    public function process_override_form($activityid, $submitteddata) : int {
+    public function process_override_form($activityid, $submitteddata): int {
         global $DB, $PAGE;
 
         // Check access.
@@ -366,9 +381,11 @@ class Source extends source_base {
      * used in the in progress quizzes dashboard.
      *
      * @param int $now Timestamp to get chart data for.
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array With Generated chart object and chart data status.
      */
-    public function get_all_participants_inprogress_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_all_participants_inprogress_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         // Get quizzes for the supplied timestamp.
         $quizzes = $this->get_quiz_summaries($now, $hoursahead, $hoursbehind);
@@ -415,9 +432,12 @@ class Source extends source_base {
      * Get finished, in progress and upcoming quizzes and their associated data.
      *
      * @param int $now Timestamp to use for reference for time.
+     * @param int $hoursahead
+     * @param int $hoursbehind
+     * @param bool $fulldata
      * @return array $quizzes Array of finished, inprogress and upcoming quizzes with associated data.
      */
-    public function get_quiz_summaries(int $now, int $hoursahead, int $hoursbehind, bool $fulldata = true) : array {
+    public function get_quiz_summaries(int $now, int $hoursahead, int $hoursbehind, bool $fulldata = true): array {
         // Get tracked quizzes.
         $lookahead = $hoursahead * HOURSECS;
         $lookbehind = $hoursbehind * HOURSECS;
@@ -496,7 +516,7 @@ class Source extends source_base {
      * @param object $quiz The quiz to get data for.
      * @return stdClass $quizdata The retrieved quiz data.
      */
-    public function get_quiz_data($quiz) : stdClass {
+    public function get_quiz_data(object $quiz): stdClass {
         global $DB;
         $quizdata = new stdClass();
 
@@ -605,7 +625,7 @@ class Source extends source_base {
      * @param context_module $context The context object of the quiz.
      * @return stdClass $overrideinfo Information about quiz overrides.
      */
-    private function get_quiz_override_info(int $quizid, context_module $context) : stdClass {
+    private function get_quiz_override_info(int $quizid, context_module $context): stdClass {
         global $DB;
 
         $capabilities = $this->get_user_capabilities();
@@ -648,7 +668,7 @@ class Source extends source_base {
      * @param int $lookbehind The number of seconds from the provided now value to look behind when getting quizzes.
      * @return array $quizzes The quizzes.
      */
-    public function get_tracked_quizzes_with_overrides(int $now, int $lookahead = HOURSECS, int $lookbehind = HOURSECS) : array {
+    public function get_tracked_quizzes_with_overrides(int $now, int $lookahead = HOURSECS, int $lookbehind = HOURSECS): array {
         global $DB;
 
         $quizzes = $this->get_tracked_quizzes($now, $lookahead, $lookbehind);
@@ -692,7 +712,7 @@ class Source extends source_base {
      * @param int $lookbehind The number of seconds from the provided now value to look behind when getting quizzes.
      * @return array $quizzes The quizzes.
      */
-    private function get_tracked_quizzes(int $now, int $lookahead, int $lookbehind) : array {
+    private function get_tracked_quizzes(int $now, int $lookahead, int $lookbehind): array {
         global $DB, $PAGE;
 
         $starttime = $now + $lookahead;
@@ -730,7 +750,7 @@ class Source extends source_base {
      * @param int $lookbehind The number of seconds from the provided now value to look behind when getting overrides.
      * @return array $quizzes The quizzes with applicable overrides.
      */
-    private function get_tracked_overrides(int $now, int $lookahead, int $lookbehind) : array {
+    private function get_tracked_overrides(int $now, int $lookahead, int $lookbehind): array {
         global $DB, $PAGE;
 
         $starttime = $now + $lookahead;
@@ -767,7 +787,7 @@ class Source extends source_base {
      * @param int $quizid The id of the quiz to get the counts for.
      * @return stdClass $attemptcounts The found counts.
      */
-    public function get_quiz_attempts(int $quizid) : stdClass {
+    public function get_quiz_attempts(int $quizid): stdClass {
         global $DB;
 
         $inprogress = 0;
@@ -812,9 +832,9 @@ class Source extends source_base {
      * Given a quiz id get the module context.
      *
      * @param int $quizid The quiz ID of the context to get.
-     * @return \context_module $context The quiz module context.
+     * @return context_module $context The quiz module context.
      */
-    public function get_quiz_context(int $quizid): \context_module {
+    public function get_quiz_context(int $quizid): context_module {
         global $DB;
 
         $params = ['module' => 'quiz', 'quiz' => $quizid];
@@ -825,9 +845,7 @@ class Source extends source_base {
                  WHERE m.name = :module
                        AND q.id = :quiz';
         $cmid = $DB->get_field_sql($sql, $params);
-        $context = \context_module::instance($cmid);
-
-        return $context;
+        return context_module::instance($cmid);
     }
 
 }

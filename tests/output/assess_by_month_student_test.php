@@ -35,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\assess_by_month_student
  */
-class assess_by_month_student_test extends \advanced_testcase {
+final class assess_by_month_student_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.

@@ -35,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\participant_summary
  */
-class participant_summary_test extends \advanced_testcase {
+final class participant_summary_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.

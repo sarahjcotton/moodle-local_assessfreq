@@ -17,7 +17,7 @@
 /**
  * Local assessfreq Web Service.
  *
- * @package    local_assessfreq
+ * @package    assessfreqreport_heatmap
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,7 +32,7 @@ require_once('lib.php');
 /**
  * Local assessfreq Web Service.
  *
- * @package    local_assessfreq
+ * @package    assessfreqreport_heatmap
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,7 +43,7 @@ class assessfreqreport_heatmap_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_day_events_parameters() : external_function_parameters {
+    public static function get_day_events_parameters(): external_function_parameters {
         return new external_function_parameters([
             'jsondata' => new external_value(PARAM_RAW, 'The data encoded as a json array'),
         ]);
@@ -55,7 +55,7 @@ class assessfreqreport_heatmap_external extends external_api {
      * @param string $jsondata JSON data.
      * @return string JSON response.
      */
-    public static function get_day_events(string $jsondata) : string {
+    public static function get_day_events(string $jsondata): string {
         global $PAGE;
         // Parameter validation.
         self::validate_parameters(
@@ -107,7 +107,7 @@ class assessfreqreport_heatmap_external extends external_api {
      * Returns description of method result value
      * @return external_value
      */
-    public static function get_day_events_returns() : external_value {
+    public static function get_day_events_returns(): external_value {
         return new external_value(PARAM_RAW, 'Event JSON');
     }
 }

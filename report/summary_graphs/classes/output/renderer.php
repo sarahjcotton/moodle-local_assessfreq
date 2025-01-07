@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer.
+ * Summary graphs renderer.
  *
  * @package   assessfreqreport_summary_graphs
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -27,9 +27,23 @@ namespace assessfreqreport_summary_graphs\output;
 
 use plugin_renderer_base;
 
+/**
+ * Summary graphs renderer.
+ *
+ * @package   assessfreqreport_summary_graphs
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
-    public function render_report($data) {
+    /**
+     * Generate the HTML for the report.
+     *
+     * @param object $data
+     * @return bool|string
+     */
+    public function render_report(object $data): bool|string {
         $charts = [];
 
         // Assess by month container.
@@ -43,7 +57,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('chart:by_month_type', 'assessfreqreport_summary_graphs'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -58,7 +72,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('chart:by_activity_type', 'assessfreqreport_summary_graphs'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -73,7 +87,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('chart:assessments_due_type', 'assessfreqreport_summary_graphs'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -88,7 +102,9 @@ class renderer extends plugin_renderer_base {
                 'charts' => $charts,
                 'yearfilter' => $yearfilter,
                 'filters' => [
-                    'years' => get_years(get_user_preferences('assessfreqreport_summary_graphs_year_preference', date('Y'))),
+                    'years' => local_assessfreq_get_years(
+                        get_user_preferences('assessfreqreport_summary_graphs_year_preference', date('Y'))
+                    ),
                 ],
             ]
         );

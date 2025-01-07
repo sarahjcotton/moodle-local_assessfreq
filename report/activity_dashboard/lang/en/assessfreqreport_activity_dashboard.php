@@ -23,33 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Report - Activity Dashboard';
-
-$string['tab:name'] = 'Activity Dashboard';
-
 $string['activity_dashboard:view'] = 'Ability to view the activity dashboard report.';
-
-$string['searchactivity'] = 'Search for activity';
-
-$string['settings:chartheading'] = 'Chart settings';
-$string['settings:chartheading_desc'] = 'These settings allow you to configure the the settings used in the charts and graphs';
-$string['settings:notloggedincolor'] = 'Not logged in color';
-$string['settings:notloggedincolor_desc'] = 'Select color to display for not logged in users in charts';
-$string['settings:loggedincolor'] = 'Logged in color';
-$string['settings:loggedincolor_desc'] = 'Select color to display for logged in users in charts';
-$string['settings:inprogresscolor'] = 'In progress color';
-$string['settings:inprogresscolor_desc'] = 'Select color to display for in progress users in charts';
-$string['settings:finishedcolor'] = 'Finished color';
-$string['settings:finishedcolor_desc'] = 'Select color to display for finished users in charts';
-$string['settings:trendcount'] = 'Trend chart count';
-$string['settings:trendcount_desc'] = 'The trend data is run every minute and can contain a lot of data.
-For example an assessment running for 5 days can have 7200 points that can be mapped which can overwhelm the chart.
-This setting specifies the number of points that will be evenly plotted on the graph';
-$string['settings:trendlimit'] = 'Trend chart limit';
-$string['settings:trendlimit_desc'] = 'The trend data is run every minute and can contain a lot of data.
-For example an assessment running for 5 days can have 7200 points that can be mapped which can overwhelm the chart.
-This setting specifies the number of most recent points that will be used';
-
 $string['form:activity'] = 'Activity';
 $string['form:entercourse'] = 'Enter course name';
 $string['form:entersearch'] = 'Enter search text';
@@ -58,9 +32,35 @@ $string['form:nocourse'] = 'No course';
 $string['form:searchactivityform'] = 'Search and select the activity to display on the dashboard';
 $string['form:selectactivity'] = 'Select activity';
 $string['form:selectcourse'] = 'Select course';
-
 $string['modal:loading'] = 'Loading';
 $string['modal:loadingactivity'] = 'Loading activities';
 $string['modal:noactivityselected'] = 'No activity selected';
 $string['modal:searchactivity'] = 'Search for activity';
 $string['modal:selectcourse'] = 'Select course';
+$string['pluginname'] = 'Report - Activity Dashboard';
+
+$string['searchactivity'] = 'Search for activity';
+$string['settings:chartheading'] = 'Chart settings';
+$string['settings:chartheading_desc'] = 'These settings allow you to configure the the settings used in the charts and graphs';
+$string['settings:finishedcolor'] = 'Finished color';
+$string['settings:finishedcolor_desc'] = 'Select color to display for finished users in charts';
+$string['settings:inprogresscolor'] = 'In progress color';
+$string['settings:inprogresscolor_desc'] = 'Select color to display for in progress users in charts';
+$string['settings:loggedincolor'] = 'Logged in color';
+$string['settings:loggedincolor_desc'] = 'Select color to display for logged in users in charts';
+$string['settings:notloggedincolor'] = 'Not logged in color';
+$string['settings:notloggedincolor_desc'] = 'Select color to display for not logged in users in charts';
+$string['settings:trendcount'] = 'Trend chart count';
+$string['settings:trendcount_desc'] = 'The trend data is run every minute and can contain a lot of data.
+For example an assessment running for 5 days can have 7200 points that can be mapped which can overwhelm the chart.
+This setting specifies the number of points that will be evenly plotted on the graph';
+$string['settings:trendlimit'] = 'Trend chart limit';
+$string['settings:trendlimit_desc'] = 'The trend data is run every minute and can contain a lot of data.
+For example an assessment running for 5 days can have 7200 points that can be mapped which can overwhelm the chart.
+This setting specifies the number of most recent points that will be used';
+$string['tab:name'] = 'Activity Dashboard';
+
+
+
+
+

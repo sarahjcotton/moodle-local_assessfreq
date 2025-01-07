@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer.
+ * Activities in progress renderer.
  *
  * @package   assessfreqreport_activities_in_progress
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -25,15 +25,16 @@
 
 namespace assessfreqreport_activities_in_progress\output;
 
-use context_system;
+use coding_exception;
 use core\chart_bar;
 use core\chart_pie;
 use core\chart_series;
+use dml_exception;
 use html_writer;
 use local_assessfreq\source_base;
 use local_assessfreq\utils;
+use moodle_exception;
 use paging_bar;
-use PHPUnit\TextUI\XmlConfiguration\PHPUnit;
 use plugin_renderer_base;
 
 defined('MOODLE_INTERNAL') || die();
@@ -41,9 +42,26 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/local/assessfreq/lib.php');
 
+/**
+ * Activities in progress renderer.
+ *
+ * @package   assessfreqreport_activities_in_progress
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
-    public function render_report($data) {
+    /**
+     * Report renderer.
+     *
+     * @param array $data
+     * @return array|bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_report(array $data): string {
 
         // Charts array for unit testing.
         $charts = [];
@@ -58,7 +76,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('inprogress:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -105,6 +123,7 @@ class renderer extends plugin_renderer_base {
         $participantseriesdata = array_values($participantseriesdata);
         $labels = array_values($labels);
 
+        $chart = '';
         if ($seriesdata) {
             $series = new chart_series($seriestitle, $seriesdata);
             $participantseries = new chart_series($participantseries, $participantseriesdata);
@@ -178,7 +197,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('summarychart:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => $contents
+                'contents' => $contents,
             ]
         );
 
@@ -187,7 +206,7 @@ class renderer extends plugin_renderer_base {
             'local_assessfreq/card',
             [
                 'header' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => 'No data'
+                'contents' => 'No data',
             ]
         );
 
@@ -213,7 +232,7 @@ class renderer extends plugin_renderer_base {
             true
         );
         // Only get modules with the "get_inprogress_count" method as only these display on the report.
-        $modules = get_modules($preferencemodule, 'get_inprogress_count');
+        $modules = local_assessfreq_get_modules($preferencemodule, 'get_inprogress_count');
 
         if (PHPUNIT_TEST) {
             return $charts;
@@ -235,7 +254,7 @@ class renderer extends plugin_renderer_base {
                     'id' => 'assessfreqreport-activities-in-progress',
                     'name' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
                     'rows' => [$rows[$preferencerows] => 'true'],
-                ]
+                ],
             ]
         );
     }
@@ -249,8 +268,6 @@ class renderer extends plugin_renderer_base {
      * @param int $page The page number of results.
      * @param string $sorton The value to sort by.
      * @param string $direction The direction to sort.
-     * @param int $hoursahead Amount of time in hours to look ahead for activity starting.
-     * @param int $hoursbehind Amount of time in hours to look behind for activity starting.
      * @return string $output HTML for the table.
      */
     public function render_activities_inprogress_table(
@@ -262,9 +279,9 @@ class renderer extends plugin_renderer_base {
         $now = time();
         $hoursahead = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursahead_preference', 8);
         $hoursbehind = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursbehind_preference', 1);
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
         $inprogress = [];
-        /* @var $source source_base */
+        /* @var $source source_base for accessing the source class */
         foreach ($sources as $source) {
             if (method_exists($source, 'get_inprogress_data')) {
                 $inprogress[] = $source->get_inprogress_data($now, $hoursahead, $hoursbehind);

@@ -28,43 +28,54 @@ namespace assessfreqreport_activity_dashboard;
 use context_system;
 use local_assessfreq\report_base;
 
+/**
+ * Main report class.
+ *
+ * @package   assessfreqreport_activity_dashboard
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report extends report_base {
+    /**
+     * Weight is used to define the sort order.
+     */
     const WEIGHT = 20;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("tab:name", "assessfreqreport_activity_dashboard");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tab_weight() : int {
+    public function get_tab_weight(): int {
         return self::WEIGHT;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tablink() : string {
+    public function get_tablink(): string {
         return 'activity_dashboard';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function has_access() : bool {
+    public function has_access(): bool {
         global $PAGE;
 
         return has_capability('assessfreqreport/activity_dashboard:view', $PAGE->context);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_contents() : string {
+    public function get_contents(): string {
         global $PAGE;
 
         $renderer = $PAGE->get_renderer("assessfreqreport_activity_dashboard");
@@ -73,9 +84,9 @@ class report extends report_base {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    protected function get_required_js() : void {
+    protected function get_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd(
@@ -86,7 +97,7 @@ class report extends report_base {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function get_required_css(): void {
         global $PAGE;

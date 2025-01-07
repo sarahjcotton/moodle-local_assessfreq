@@ -23,31 +23,31 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Report - Summary Graphs';
-
-$string['tab:name'] = 'Summary Graphs';
-
-$string['summary_graphs:view'] = 'Ability to view the summary graph report.';
-
-$string['filter:selectyear'] = 'Select year';
+$string['chart:assessments_due_type'] = 'Students with assessments due by month';
+$string['chart:by_activity_type'] = 'Assessments by activity';
+$string['chart:by_month_type'] = 'Assessments due by month';
 $string['filter:closeapply'] = 'Close and apply';
 $string['filter:header'] = 'Filters';
+$string['filter:selectyear'] = 'Select year';
 $string['filter:submit'] = 'Filter';
+$string['pluginname'] = 'Report - Summary Graphs';
 
+$string['report:usage_guidlines'] = '';
+$string['settings:assessments_due_type'] = 'Students with assessments due by month graph type';
+$string['settings:by_activity_type'] = 'Assessments by activity graph type';
+$string['settings:by_month_type'] = 'Assessments due by month graph type';
 $string['settings:courselevelyearfilter'] = 'Include year filter at course level';
 $string['settings:courselevelyearfilter_desc'] = 'If courses are run annually then the year filter is not required. Course startdate will be used instead.';
-$string['settings:graphsheading'] = 'Summary graph types';
-$string['settings:graphsheading_desc'] = 'Specify the graph types for each summary graph report';
 $string['settings:graphs:bar'] = 'Bar';
 $string['settings:graphs:line'] = 'Line';
 $string['settings:graphs:pie'] = 'Pie';
+$string['settings:graphsheading'] = 'Summary graph types';
+$string['settings:graphsheading_desc'] = 'Specify the graph types for each summary graph report';
+$string['summary_graphs:view'] = 'Ability to view the summary graph report.';
+$string['tab:name'] = 'Summary Graphs';
 
-$string['settings:by_month_type'] = 'Assessments due by month graph type';
-$string['settings:by_activity_type'] = 'Assessments by activity graph type';
-$string['settings:assessments_due_type'] = 'Students with assessments due by month graph type';
 
-$string['chart:by_month_type'] = 'Assessments due by month';
-$string['chart:by_activity_type'] = 'Assessments by activity';
-$string['chart:assessments_due_type'] = 'Students with assessments due by month';
 
-$string['report:usage_guidlines'] = '';
+
+
+

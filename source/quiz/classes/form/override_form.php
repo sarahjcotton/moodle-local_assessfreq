@@ -25,14 +25,22 @@
 namespace assessfreqsource_quiz\form;
 
 use moodleform;
-use quiz_override_form;
+use mod_quiz\form\edit_override_form;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/mod/quiz/override_form.php');
 
-class override_form extends quiz_override_form {
+/**
+ * Form to add override for quiz.
+ *
+ * @package    assessfreqsource_quiz
+ * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class override_form extends edit_override_form {
+
     /**
      * Constructor.
      * @param object $cm course module object.
@@ -58,7 +66,7 @@ class override_form extends quiz_override_form {
      * {@inheritDoc}
      * @see quiz_override_form::definition()
      */
-    protected function definition() {
+    protected function definition(): void {
         parent::definition();
         $mform = $this->_form;
         $mform->freeze('userid');

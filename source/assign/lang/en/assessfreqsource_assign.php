@@ -23,67 +23,67 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Source - Assign';
-
-$string['source:name'] = 'Assign';
-
-$string['source:na'] = 'N/A';
-
+$string['detailstable:closetime'] = 'Due date/time';
+$string['detailstable:course'] = 'Course';
+$string['detailstable:firstparticipantstart'] = 'First participant starts';
+$string['detailstable:groupsubmissionenabled'] = 'Group submissions enabled';
+$string['detailstable:head'] = 'Assignment details';
+$string['detailstable:lastparticipantfinish'] = 'Last participant finished';
+$string['detailstable:opentime'] = 'Allow submissions from date/time';
+$string['detailstable:participantcount'] = 'Participant Count';
+$string['detailstable:participantoverridecount'] = 'Participants with an override';
+$string['detailstable:submissions'] = 'Assignment submissions';
+$string['detailstable:submissiontypes'] = 'Submission types';
+$string['detailstable:timelimit'] = 'Cut-off date/time';
+$string['detailstable:viewsubmissions'] = 'View submissions';
+$string['inprogress:assessments'] = 'Assignments : {$a->assessments} / Participants : {$a->participants}';
 $string['nodata'] = 'No data found';
-
-$string['task:assigntracking'] = '';
+$string['participanttrend:finished'] = 'Finished';
+$string['participanttrend:head'] = 'Participant trend';
+$string['participanttrend:inprogress'] = 'In progress';
+$string['participanttrend:loggedin'] = 'Logged in';
+$string['participanttrend:notloggedin'] = 'Not logged in';
+$string['participanttrend:participants'] = 'Participants';
+$string['participanttrend:participantsummary'] = 'Participant summary';
+$string['pluginname'] = 'Source - Assign';
 
 $string['settings:windowexclusion'] = 'Window Exclusion';
 $string['settings:windowexclusion_desc'] = 'This setting will allow for assignments that run for longer than the defined period to be excluded from "in progress" checks.
 This is useful for when a large number of assignments have been created with large time windows as these affect the performance of reports.';
-
-$string['detailstable:head'] = 'Assignment details';
-$string['detailstable:course'] = 'Course';
-$string['detailstable:opentime'] = 'Allow submissions from date/time';
-$string['detailstable:closetime'] = 'Due date/time';
-$string['detailstable:timelimit'] = 'Cut-off date/time';
-$string['detailstable:firstparticipantstart'] = 'First participant starts';
-$string['detailstable:lastparticipantfinish'] = 'Last participant finished';
-$string['detailstable:submissions'] = 'Assignment submissions';
-$string['detailstable:participantcount'] = 'Participant Count';
-$string['detailstable:participantoverridecount'] = 'Participants with an override';
-$string['detailstable:submissiontypes'] = 'Submission types';
-$string['detailstable:groupsubmissionenabled'] = 'Group submissions enabled';
-$string['detailstable:viewsubmissions'] = 'View submissions';
-
-$string['summarychart:head'] = 'Participant summary';
-$string['summarychart:participantsummary'] = 'Participant summary';
-$string['summarychart:notloggedin'] = 'Not logged in';
-$string['summarychart:loggedin'] = 'Logged in';
-$string['summarychart:inprogress'] = 'In progress';
-$string['summarychart:finished'] = 'Finished';
-
-$string['participanttrend:head'] = 'Participant trend';
-$string['participanttrend:participants'] = 'Participants';
-$string['participanttrend:participantsummary'] = 'Participant summary';
-$string['participanttrend:notloggedin'] = 'Not logged in';
-$string['participanttrend:loggedin'] = 'Logged in';
-$string['participanttrend:inprogress'] = 'In progress';
-$string['participanttrend:finished'] = 'Finished';
+$string['source:na'] = 'N/A';
+$string['source:name'] = 'Assign';
 
 
-$string['studentattempt:head'] = 'Student attempt status';
-$string['studentattempt:trenddatetime'] = '%H:%M, %d-%m-%y';
-$string['studentattempt:useroverride'] = 'Add user override';
 
-$string['studentattempt:timeopen'] = 'Allow submissions from date/time';
-$string['studentattempt:timeclose'] = 'Due date/time ';
-$string['studentattempt:cutoffdate'] = 'Cut-off date/time';
-$string['studentattempt:status'] = 'Submissions status';
-$string['studentattempt:loggedinstatus'] = 'Logged in status';
 $string['studentattempt:actions'] = 'Actions';
-$string['studentattempt:notloggedin'] = 'Not logged in';
-$string['studentattempt:loggedin'] = 'Logged in';
-$string['studentattempt:inprogress'] = 'In progress';
+$string['studentattempt:cutoffdate'] = 'Cut-off date/time';
 $string['studentattempt:finished'] = 'Finished';
+$string['studentattempt:head'] = 'Student attempt status';
+$string['studentattempt:inprogress'] = 'In progress';
+$string['studentattempt:loggedin'] = 'Logged in';
+$string['studentattempt:loggedinstatus'] = 'Logged in status';
 $string['studentattempt:na'] = 'N/A';
+$string['studentattempt:notloggedin'] = 'Not logged in';
+$string['studentattempt:status'] = 'Submissions status';
+$string['studentattempt:timeclose'] = 'Due date/time ';
+$string['studentattempt:timeopen'] = 'Allow submissions from date/time';
+$string['studentattempt:trenddatetime'] = '%H:%M, %d-%m-%y';
 $string['studentattempt:userattempt'] = 'User attempt';
-$string['studentattempt:userprofile'] = 'User profile';
 $string['studentattempt:userlogs'] = 'User logs';
+$string['studentattempt:useroverride'] = 'Add user override';
+$string['studentattempt:userprofile'] = 'User profile';
+$string['summarychart:finished'] = 'Finished';
+$string['summarychart:head'] = 'Participant summary';
+$string['summarychart:inprogress'] = 'In progress';
+$string['summarychart:loggedin'] = 'Logged in';
+$string['summarychart:notloggedin'] = 'Not logged in';
+$string['summarychart:participantsummary'] = 'Participant summary';
+$string['task:assigntracking'] = '';
 
-$string['inprogress:assessments'] = 'Assignments : {$a->assessments} / Participants : {$a->participants}';
+
+
+
+
+
+
+

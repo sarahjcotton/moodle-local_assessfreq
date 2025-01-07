@@ -28,6 +28,14 @@ namespace assessfreqsource_assign\output;
 use core\chart_pie;
 use core\chart_series;
 
+/**
+ * Renderable for participant summary card.
+ *
+ * @package   assessfreqsource_assign
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class participant_summary {
 
     /**
@@ -37,7 +45,7 @@ class participant_summary {
      * @param array $allparticipantdata Participant data.
      * @return array With Generated chart object and chart data status.
      */
-    public function get_participant_summary_chart(array $allparticipantdata) : array {
+    public function get_participant_summary_chart(array $allparticipantdata): array {
         global $OUTPUT;
 
         $participantdata = array_pop($allparticipantdata);

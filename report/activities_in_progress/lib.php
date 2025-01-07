@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Library functions.
+ *
  * @package    assessfreqreport_activities_in_progress
  * @copyright  2024 Simon Thornett <simon.thornett@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,7 +27,7 @@
  *
  * @return array
  */
-function assessfreqreport_activities_in_progress_user_preferences() : array {
+function assessfreqreport_activities_in_progress_user_preferences(): array {
 
     $preferences['assessfreqreport_activities_in_progress_modules_preference'] = [
         'null' => NULL_NOT_ALLOWED,
@@ -67,7 +69,7 @@ function assessfreqreport_activities_in_progress_user_preferences() : array {
  * @param array $args
  * @return string $o Form HTML.
  */
-function assessfreqreport_activities_in_progress_output_fragment_get_in_progress_table(array $args) : string {
+function assessfreqreport_activities_in_progress_output_fragment_get_in_progress_table(array $args): string {
     global $PAGE;
 
     require_capability('assessfreqreport/activities_in_progress:view', $PAGE->context);

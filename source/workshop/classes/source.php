@@ -27,40 +27,48 @@ namespace assessfreqsource_workshop;
 
 use local_assessfreq\source_base;
 
+/**
+ * Main source class.
+ *
+ * @package   assessfreqsource_workshop
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class source extends source_base {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_module() : string {
+    public function get_module(): string {
         return 'workshop';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("source:name", "assessfreqsource_workshop");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_open_field() : string {
+    public function get_open_field(): string {
         return 'submissionstart';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return 'submissionend';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return ['mod/workshop:submit', 'mod/workshop:view'];
     }
 }

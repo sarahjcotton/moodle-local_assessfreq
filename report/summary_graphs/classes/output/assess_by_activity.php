@@ -30,7 +30,7 @@ use local_assessfreq\frequency;
 /**
  * Renderable for assessments by activity card.
  *
- * @package    local_assessfreq
+ * @package    assessfreqreport_summary_graphs
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,9 +40,10 @@ class assess_by_activity {
      * used in the smart media dashboard.
      *
      * @param int $year Year to get chart data for.
+     * @param int $month Month to get chart data for.
      * @return array With Generated chart object and chart data status.
      */
-    public function get_assess_by_activity_chart(int $year, int $month) : array {
+    public function get_assess_by_activity_chart(int $year, int $month): array {
         global $OUTPUT;
 
         // Get events for the supplied year.

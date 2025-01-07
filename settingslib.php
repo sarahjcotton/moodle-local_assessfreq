@@ -44,7 +44,13 @@ class admin_setting_configint extends admin_setting_configtext {
         admin_setting::__construct($name, $visiblename, $description, $defaultsetting);
     }
 
-    public function write_setting($data) {
+    /**
+     * Write the setting to the database.
+     *
+     * @param string $data The data we're saving.
+     * @return lang_string|mixed|string|true
+     */
+    public function write_setting($data): mixed {
         $data = trim($data);
         $validated = $this->validate($data);
         if ($validated !== true) {
@@ -53,6 +59,12 @@ class admin_setting_configint extends admin_setting_configtext {
         return ($this->config_write($this->name, $data) ? '' : get_string('errorsetting', 'admin'));
     }
 
+    /**
+     * Validate the values for the setting.
+     *
+     * @param string $data
+     * @return mixed|true
+     */
     public function validate($data) {
         global $PAGE;
 

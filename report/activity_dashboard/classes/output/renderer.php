@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer.
+ * Activity dashboard renderer.
  *
  * @package   assessfreqreport_activity_dashboard
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -28,6 +28,14 @@ namespace assessfreqreport_activity_dashboard\output;
 use local_assessfreq\source_base;
 use plugin_renderer_base;
 
+/**
+ * Activity dashboard renderer.
+ *
+ * @package   assessfreqreport_activity_dashboard
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
     /**
@@ -35,16 +43,16 @@ class renderer extends plugin_renderer_base {
      *
      * @return bool|string
      */
-    public function render_report() {
+    public function render_report(): bool|string {
 
         $activityid = optional_param('activityid', 0, PARAM_INT);
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
 
         $report = '';
         if ($activityid) {
             [$course, $cm] = get_course_and_cm_from_cmid($activityid);
             if (isset($sources[$cm->modname])) {
-                /* @var $source source_base */
+                /* @var $source source_base for accessing the source class */
                 $source = $sources[$cm->modname];
                 if (method_exists($source, 'get_activity_dashboard')) {
                     $report = $source->get_activity_dashboard($cm, $course);

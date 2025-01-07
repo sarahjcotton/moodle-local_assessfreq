@@ -32,8 +32,8 @@
                 {{# str }} filter:metric:students, assessfreqreport_heatmap {{/ str }}
         </span>
     </button>
-    <div id="local-assessfreq-report-heatmap-filter-metric-options" role="menu" class="dropdown-menu" data-show-active-item>
-        <h6 class="dropdown-header">{{# str }} filter:selectmetric, assessfreqreport_heatmap {{/ str }}</h6>
+    <span id="local-assessfreq-report-heatmap-filter-metric-options" role="menu" class="dropdown-menu" data-show-active-item>
+        <strong class="dropdown-header">{{# str }} filter:selectmetric, assessfreqreport_heatmap {{/ str }}</strong>
         <a
             class="local-assessfreq-report-heatmap-filter-metric-option dropdown-item {{#filters.metrics}}{{#assess}}active{{/assess}}{{/filters.metrics}}"
             href="#"
@@ -52,5 +52,5 @@
         >
             {{# str }} filter:metric:students, assessfreqreport_heatmap {{/ str }}
         </a>
-    </div>
+    </span>
 </span>

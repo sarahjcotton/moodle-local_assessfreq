@@ -73,7 +73,7 @@ if ($metric == 'students') {
 }
 
 $frequency = new frequency();
-$orderedmonths = get_months_ordered();
+$orderedmonths = local_assessfreq_get_months_ordered();
 $month = array_key_first($orderedmonths);
 $data = $frequency->get_download_data($year, $month, $metric, $modules);
 

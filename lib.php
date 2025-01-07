@@ -13,17 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use local_assessfreq\frequency;
-use local_assessfreq\source_base;
-use local_assessfreq\report_base;
 
 /**
- * This page contains callbacks.
+ * This page contains callbacks and library functions.
  *
  * @package    local_assessfreq
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use local_assessfreq\frequency;
+use local_assessfreq\source_base;
+use local_assessfreq\report_base;
 
 /**
  * This function extends the navigation with the report link.
@@ -32,7 +33,7 @@ use local_assessfreq\report_base;
  * @param stdClass $course The course to object for the report
  * @param context $context The context of the course
  */
-function local_assessfreq_extend_navigation_course(navigation_node $navigation, stdClass $course, context $context) {
+function local_assessfreq_extend_navigation_course(navigation_node $navigation, stdClass $course, context $context): void {
     if (has_capability('local/assessfreq:view', $context)) {
         $url = new moodle_url('/local/assessfreq/', ['courseid' => $course->id]);
         $settingsnode = navigation_node::create(get_string('pluginname', 'local_assessfreq'), $url);
@@ -46,14 +47,14 @@ function local_assessfreq_extend_navigation_course(navigation_node $navigation, 
 /**
  * Get all of the subplugin reports that are enabled and instantiate the class.
  *
- * @param $ignoreenabled
+ * @param bool $ignoreenabled
  * @return array
  */
-function get_reports($ignoreenabled = false) : array {
+function local_assessfreq_get_reports(bool $ignoreenabled = false): array {
     $reports = [];
     $pluginmanager = core_plugin_manager::instance();
     foreach ($pluginmanager->get_plugins_of_type('assessfreqreport') as $subplugin) {
-        /* @var $class report_base */
+        /* @var $class report_base for accessing the report class */
         if ($subplugin->is_enabled() || $ignoreenabled) {
             $class = "assessfreqreport_{$subplugin->name}\\report";
             $report = $class::get_instance();
@@ -68,23 +69,26 @@ function get_reports($ignoreenabled = false) : array {
 /**
  * Get all of the subplugin sources that are enabled and instantiate the class.
  *
- * @param $ignoreenabled
+ * @param bool $ignoreenabled
+ * @param string $requiredmethod
  * @return array
  */
-function get_sources($ignoreenabled = false, $requiredmethod = '') : array {
+function local_assessfreq_get_sources(bool $ignoreenabled = false, $requiredmethod = ''): array {
     $sources = [];
     $pluginmanager = core_plugin_manager::instance();
     foreach ($pluginmanager->get_plugins_of_type('assessfreqsource') as $subplugin) {
         if ($subplugin->is_enabled() || $ignoreenabled) {
-            /* @var $class source_base */
+            /* @var $class source_base for accessing the source class */
             $class = "assessfreqsource_{$subplugin->name}\\source";
-            $source = $class::get_instance();
-            if (!empty($requiredmethod)) {
-                if (!method_exists($source, $requiredmethod)) {
-                    continue;
+            if (class_exists($class)) {
+                $source = $class::get_instance();
+                if (!empty($requiredmethod)) {
+                    if (!method_exists($source, $requiredmethod)) {
+                        continue;
+                    }
                 }
+                $sources[$subplugin->name] = $source;
             }
-            $sources[$subplugin->name] = $source;
         }
     }
     return $sources;
@@ -95,7 +99,7 @@ function get_sources($ignoreenabled = false, $requiredmethod = '') : array {
  *
  * @return array
  */
-function get_months_ordered() : array {
+function local_assessfreq_get_months_ordered(): array {
 
     $months = [];
     $startmonth = get_config('local_assessfreq', 'start_month');
@@ -115,10 +119,10 @@ function get_months_ordered() : array {
 /**
  * Get the years that have events with the preferred year active.
  *
- * @param $preference
+ * @param int $preference
  * @return array
  */
-function get_years($preference) : array {
+function local_assessfreq_get_years($preference): array {
 
     $currentyear = date('Y');
 
@@ -154,11 +158,14 @@ function get_years($preference) : array {
  * Get the modules to use in data collection.
  * This is based on which sources have been enabled.
  *
+ * @param array $preferences
+ * @param string $requiredmethod
  * @return array $modules The enabled modules.
+ * @throws coding_exception
  */
-function get_modules($preferences, $requiredmethod= '') : array {
+function local_assessfreq_get_modules($preferences, $requiredmethod= ''): array {
 
-    $sources = get_sources(false, $requiredmethod);
+    $sources = local_assessfreq_get_sources(false, $requiredmethod);
 
     // Get modules for filters and load into context.
     $modules = [];
@@ -189,7 +196,7 @@ function get_modules($preferences, $requiredmethod= '') : array {
  * @param array $userids User ids to get logged in status.
  * @return stdClass $usercounts Object with coutns of users logged in and not logged in.
  */
-function get_loggedin_users(array $userids): stdClass {
+function local_assessfreq_get_loggedin_users(array $userids): stdClass {
     global $CFG, $DB;
 
     $maxlifetime = $CFG->sessiontimeout;
@@ -243,10 +250,10 @@ function local_assessfreq_output_fragment_new_override_form($args): string {
         parse_str($serialiseddata, $formdata);
     }
 
-    $sources = get_sources();
+    $sources = local_assessfreq_get_sources();
     $source = $sources[$module];
     $o = '';
-    /* @var $source source_base */
+    /* @var $source source_base for accessing the source class */
     if (method_exists($source, 'get_override_form')) {
         $mform = $source->get_override_form($args['activityid'], $args['context'], $args['userid'], $serialiseddata);
         ob_start();

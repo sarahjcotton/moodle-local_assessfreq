@@ -28,43 +28,54 @@ namespace assessfreqreport_activities_in_progress;
 use local_assessfreq\report_base;
 use local_assessfreq\source_base;
 
+/**
+ * Main report class.
+ *
+ * @package   assessfreqreport_activities_in_progress
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report extends report_base {
+    /**
+     * Weight is used to define the sort order.
+     */
     const WEIGHT = 30;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("tab:name", "assessfreqreport_activities_in_progress");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tab_weight() : int {
+    public function get_tab_weight(): int {
         return self::WEIGHT;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tablink() : string {
+    public function get_tablink(): string {
         return 'activities_in_progress';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function has_access() : bool {
+    public function has_access(): bool {
         global $PAGE;
 
         return has_capability('assessfreqreport/activities_in_progress:view', $PAGE->context);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_contents() : string {
+    public function get_contents(): string {
         global $PAGE;
 
         $data = [];
@@ -75,12 +86,12 @@ class report extends report_base {
         $modulepreference = json_decode(
             get_user_preferences('assessfreqreport_activities_in_progress_modules_preference', '["all"]')
         );
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
         $hoursahead = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursahead_preference', 8);
         $hoursbehind = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursbehind_preference', 1);
 
         foreach ($sources as $source) {
-            /* @var $source source_base */
+            /* @var $source source_base for accessing the source class */
             if (!in_array('all', $modulepreference) && !in_array($source->get_module(), $modulepreference)) {
                 continue;
             }
@@ -104,9 +115,9 @@ class report extends report_base {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    protected function get_required_js() : void {
+    protected function get_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd(
@@ -117,7 +128,7 @@ class report extends report_base {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function get_required_css(): void {
         global $PAGE;

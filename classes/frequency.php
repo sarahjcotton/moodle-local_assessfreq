@@ -60,12 +60,14 @@ class frequency {
     /**
      * Size of batch to insert records into database.
      *
-     * @var integer $batchsize
+     * @var int $batchsize
      */
     private int $batchsize = 100;
 
     /**
      * Cache of event users.
+     *
+     * @var array $eventuserscache
      */
     private array $eventuserscache = [];
 
@@ -77,7 +79,7 @@ class frequency {
      * @return array Capabilities relating to the module.
      */
     public function get_module_capabilities(string $module): array {
-        $sources = get_sources(true);
+        $sources = local_assessfreq_get_sources(true);
         return $sources[$module]->get_user_capabilities();
     }
 
@@ -91,11 +93,11 @@ class frequency {
      * @return array $modules Lis of modules to process.
      */
     public function get_process_modules(): array {
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
         $modules = [];
 
         if (!empty($sources)) {
-            /* @var $source source_base */
+            /* @var $source source_base for accessing the source class */
             foreach ($sources as $source) {
                 $modules[] = $source->get_module();
             }
@@ -105,12 +107,15 @@ class frequency {
     }
 
     /**
-     * Generate SQL to use to get activity info.
+     *  Generate SQL to use to get activity info.
      *
-     * @param string $module Activity module to get data for.
-     * @return string $sql The generated SQL.
+     * @param string $module The module that we're getting the query for.
+     * @param string $duedate The end date field for the module.
+     * @param string $startdate The start date field for the module.
+     * @param string $timelimit The time limit field for the module.
+     * @return string
      */
-    private function get_sql_query(string $module, $duedate, $startdate, $timelimit): string {
+    private function get_sql_query(string $module, string $duedate, string $startdate, string $timelimit): string {
         $includehiddencourses = get_config('local_assessfreq', 'hiddencourses');
         $sql = 'SELECT cm.id, cm.course, m.name, cm.instance, c.id as contextid, a.' . $duedate . ' AS duedate ';
 
@@ -253,14 +258,14 @@ class frequency {
      */
     public function process_site_events(int $duedate): int {
         $recordsprocessed = 0;
-        $sources = get_sources(true);
+        $sources = local_assessfreq_get_sources(true);
         $includehiddencourses = get_config('local_assessfreq', 'hiddencourses');
 
         if (!empty($sources)) {
             // Itterate through sources.
             foreach ($sources as $source) {
 
-                /* @var $source source_base */
+                /* @var $source source_base for accessing the source class */
                 $sql = $this->get_sql_query(
                     $source->get_module_table(),
                     $source->get_close_field(),
@@ -811,7 +816,7 @@ class frequency {
      * @param int $to The timestamp to get events to.
      * @return array $events An array of site events
      */
-    public function get_user_events_all(int $courseid, string $module = 'all', int $from = 0, int $to = 0): iterable {
+    public function get_user_events_all(int $courseid, string $module = 'all', int $from = 0, int $to = 0): array {
         global $DB;
 
         $rowkey = $DB->sql_concat('s.id', "'_'", 'u.userid', "'_'", 'u.id');
@@ -859,6 +864,7 @@ class frequency {
      * Get events for a given year, grouped by month.
      *
      * @param int $year The year to get the events for.
+     * @param int $month The month to get the events for.
      * @param bool $cache Fetch events from cache.
      * @return array $events The events.
      */
@@ -936,6 +942,7 @@ class frequency {
      * Get count of users who have an event for a given year grouped by month.
      *
      * @param int $year The year to get the events for.
+     * @param int $month The month to get the events for.
      * @param bool $cache Fetch events from cache.
      * @return array $events The events.
      */
@@ -1014,6 +1021,7 @@ class frequency {
      * Get count of assessments who have an event for a given year grouped by month.
      *
      * @param int $year The year to get the events for.
+     * @param int $month The month to get the events for.
      * @param bool $cache Fetch events from cache.
      * @return array $events The events.
      */
@@ -1037,7 +1045,7 @@ class frequency {
             $params = [];
             $sql = 'SELECT s.module, COUNT(s.id) as count
                       FROM {local_assessfreq_site} s
-                 LEFT JOIN {course} c ON s.courseid = c.id 
+                 LEFT JOIN {course} c ON s.courseid = c.id
                  WHERE 1=1';
 
             $includehiddencourses = get_config('local_assessfreq', 'hiddencourses');
@@ -1151,7 +1159,7 @@ class frequency {
             }
         }
 
-        $sources = get_sources();
+        $sources = local_assessfreq_get_sources();
 
         // Get additional information and format the event data.
         foreach ($events as $event) {
@@ -1166,7 +1174,7 @@ class frequency {
                     ($event->timelimit == 0) ? '-' : round(($event->timelimit / 60));
                 $event->dashurl = '';
 
-                /* @var $source source_base */
+                /* @var $source source_base for accessing the source class */
                 $source = $sources[$event->module];
                 if (method_exists($source, 'get_activity_dashboard')) {
                     $dashurl = new \moodle_url('/local/assessfreq/', ['activityid' => $context->instanceid], 'activity_dashboard');
@@ -1203,6 +1211,7 @@ class frequency {
      * [yyyy][mm][dd]['number'] = number of events that day.
      *
      * @param int $year The year to get events for.
+     * @param int $month The month to get the events for.
      * @param string $metric The metric to get 'students' or 'assess'.
      * @param array $modules List of modules to get events for.
      * @return array $freqarray The array of even frequencies.
@@ -1291,6 +1300,7 @@ class frequency {
      * Get data for file download export.
      *
      * @param int $year The year to get the data for.
+     * @param int $month The month to get the events for.
      * @param string $metric The type of metric to get 'assess' or 'student'.
      * @param array $modules The modules to get.
      * @return array $data The data for the download file.

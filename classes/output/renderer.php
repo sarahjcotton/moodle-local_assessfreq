@@ -25,21 +25,28 @@
 
 namespace local_assessfreq\output;
 
-use local_assessfreq\form\course_search;
 use local_assessfreq\report_base;
 use plugin_renderer_base;
 
+/**
+ * Renderer.
+ *
+ * @package   local_assessfreq
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
     /**
      * Render each of the assessfreqreport subplugins as tabs to display.
      *
      * @return void
      */
-    public function render_reports() : void {
-        $reports = get_reports();
+    public function render_reports(): void {
+        $reports = local_assessfreq_get_reports();
         $reportoutputs = [];
         foreach ($reports as $report) {
-            /* @var $report report_base */
+            /* @var $report report_base for accessing the report class */
             $reportoutputs[] = [
                 'tablink' => $report->get_tablink(), // Plugin name.
                 'tabname' => $report->get_name(), // Display name.
@@ -55,7 +62,7 @@ class renderer extends plugin_renderer_base {
         $output .= $this->render_from_template(
             'local_assessfreq/index',
             [
-                'reports' => $reportoutputs
+                'reports' => $reportoutputs,
             ]
         );
         $output .= $this->output->footer();

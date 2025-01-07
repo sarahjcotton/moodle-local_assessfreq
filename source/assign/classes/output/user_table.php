@@ -25,6 +25,8 @@
 
 namespace assessfreqsource_assign\output;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/tablelib.php');
 
 use coding_exception;
@@ -39,10 +41,18 @@ use renderable;
 use stdClass;
 use table_sql;
 
+/**
+ * Renderable table for dashboard users.
+ *
+ * @package   assessfreqsource_assign
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class user_table extends table_sql implements renderable {
 
     /**
-     * @var integer $assignid The ID of the assignment.
+     * @var int $assignid The ID of the assignment.
      */
     private int $assignid;
 
@@ -60,27 +70,27 @@ class user_table extends table_sql implements renderable {
     /**
      * @var int $timeopen
      */
-    private $timeopen;
+    private int $timeopen;
 
     /**
      * @var int $timeclose
      */
-    private $timeclose;
+    private int $timeclose;
 
     /**
      * @var int $cutoffdate
      */
-    private $cutoffdate;
+    private int $cutoffdate;
 
     /**
-     * @var bool|context|context_system|null The context.
+     * @var context The context.
      */
-    private $context;
+    private context $context;
 
     /**
      * @var array Cache of course modules to reduce call volume.
      */
-    private static $cmcache = [];
+    private static array $cmcache = [];
 
     /**
      * report_table constructor.
@@ -143,7 +153,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string
      */
-    public function other_cols($column, $row) : string {
+    public function other_cols($column, $row): string {
         // Do not process if it is not a part of the extra fields.
         if (!in_array($column, $this->extrafields)) {
             return '';
@@ -159,7 +169,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeopen(stdClass $row) : string {
+    public function col_timeopen(stdClass $row): string {
         if (!$row->timeopen) {
             return '-';
         }
@@ -182,7 +192,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_timeclose(stdClass $row) : string {
+    public function col_timeclose(stdClass $row): string {
         if (!$row->timeclose) {
             return '-';
         }
@@ -205,7 +215,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_cutoffdate(stdClass $row) : string {
+    public function col_cutoffdate(stdClass $row): string {
         if (!$row->cutoffdate) {
             return '-';
         }
@@ -228,7 +238,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_actions(stdClass $row) : string {
+    public function col_actions(stdClass $row): string {
         global $OUTPUT;
 
         $manage = '';
@@ -253,7 +263,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_status(stdClass $row) : string {
+    public function col_status(stdClass $row): string {
         if (!$row->status || $row->status == 'new') {
             return '';
         }
@@ -267,7 +277,7 @@ class user_table extends table_sql implements renderable {
      * @param int $pagesize size of page for paginated displayed table.
      * @param bool $useinitialsbar do you want to use the initials bar.
      */
-    public function query_db($pagesize, $useinitialsbar = false) {
+    public function query_db($pagesize, $useinitialsbar = false): void {
         global $CFG, $DB;
 
         $maxlifetime = $CFG->sessiontimeout;
@@ -364,9 +374,8 @@ class user_table extends table_sql implements renderable {
      *
      * @param stdClass $row
      * @return string html used to display the video field.
-     * @throws \moodle_exception
      */
-    public function col_fullname($row) : string {
+    public function col_fullname($row): string {
         global $OUTPUT;
 
         return $OUTPUT->user_picture($row, ['size' => 35, 'includefullname' => true]);
@@ -379,7 +388,7 @@ class user_table extends table_sql implements renderable {
      * @param stdClass $row
      * @return string html used to display the field.
      */
-    public function col_loggedinstatus(stdClass $row) : string {
+    public function col_loggedinstatus(stdClass $row): string {
 
         if ($row->loggedinstatus == 'notloggedin') {
             $color = 'background: ' . get_config('assessfreqreport_activity_dashboard', 'notloggedincolor');
@@ -398,7 +407,7 @@ class user_table extends table_sql implements renderable {
      *
      * @return array
      */
-    protected function get_common_headers() : array {
+    protected function get_common_headers(): array {
         return [
             get_string('studentattempt:timeopen', 'assessfreqsource_assign'),
             get_string('studentattempt:timeclose', 'assessfreqsource_assign'),
@@ -435,7 +444,7 @@ class user_table extends table_sql implements renderable {
         global $OUTPUT;
         $actions = '';
         if (!isset(self::$cmcache[$row->assignment])) {
-            [,$cm] = get_course_and_cm_from_instance($row->assignment, 'assign');
+            [, $cm] = get_course_and_cm_from_instance($row->assignment, 'assign');
             self::$cmcache[$row->assignment] = $cm;
         }
         if ($row->status == 'submitted') {
@@ -486,14 +495,5 @@ class user_table extends table_sql implements renderable {
             'title' => get_string('studentattempt:userlogs', 'assessfreqsource_assign'),
         ]);
         return $actions;
-    }
-
-    public function get_report() {
-        ob_start();
-        $this->out(50, true);
-        $participanttablehtml = ob_get_contents();
-        ob_end_clean();
-
-        return $participanttablehtml;
     }
 }

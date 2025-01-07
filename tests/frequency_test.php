@@ -44,7 +44,7 @@ require_once($CFG->dirroot . '/calendar/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\frequency
  */
-class frequency_test extends \advanced_testcase {
+final class frequency_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -482,20 +482,20 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events($duedate);
         $frequency->process_user_events($duedate);
 
-        $result = $frequency->get_user_events_all(SITEID, 'all', 0, 0, false);
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertCount(4, $result);
 
-        $result = iterator_to_array($frequency->get_user_events_all(SITEID, 'forum', 0, 0, true));
+        $result = $frequency->get_user_events_all(SITEID, 'forum');
         $this->assertEmpty($result);
 
         $this->course->visible = 0;
         $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-        $result = iterator_to_array($frequency->get_user_events_all(SITEID, 'all', 0, 0, false));
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertEmpty($result);
 
         set_config('hiddencourses', '1', 'local_assessfreq');
-        $result = $frequency->get_user_events_all(SITEID, 'all', 0, 0, false);
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertCount(4, $result);
     }
 

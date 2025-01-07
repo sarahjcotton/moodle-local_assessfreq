@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Library functions.
+ *
  * @package    assessfreqreport_student_search
  * @copyright  2024 Simon Thornett <simon.thornett@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -70,7 +71,7 @@ function assessfreqreport_student_search_user_preferences(): array {
  * @param array $args
  * @return string $o Form HTML.
  */
-function assessfreqreport_student_search_output_fragment_get_student_search_table($args): string {
+function assessfreqreport_student_search_output_fragment_get_student_search_table(array $args): string {
     global $CFG, $PAGE;
 
     $context = $args['context'];

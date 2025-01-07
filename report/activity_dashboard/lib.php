@@ -28,10 +28,9 @@ use assessfreqreport_activity_dashboard\form\search_form;
 /**
  * Renders the search form for the modal on the dashboard.
  *
- * @param array $args
  * @return string $o Form HTML.
  */
-function assessfreqreport_activity_dashboard_output_fragment_search_form($args) : string {
+function assessfreqreport_activity_dashboard_output_fragment_search_form(): string {
 
     $mform = new search_form(null, null, 'post', '', ['class' => 'ignoredirty']);
 

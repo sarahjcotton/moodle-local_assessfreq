@@ -30,6 +30,10 @@ namespace local_assessfreq;
  */
 abstract class source_base {
 
+    /**
+     * Singleton instances.
+     * @var array
+     */
     private static array $instances = [];
 
     /**
@@ -39,6 +43,9 @@ abstract class source_base {
      */
     private static array $cache = [];
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
         $this->get_required_js();
         $this->get_required_css();
@@ -49,7 +56,7 @@ abstract class source_base {
      *
      * @return source_base
      */
-    public static function get_instance() : source_base {
+    public static function get_instance(): source_base {
         $class = static::class;
         if (!isset(self::$instances[$class])) {
             self::$instances[$class] = new static();
@@ -62,13 +69,13 @@ abstract class source_base {
      * Return the name of the module the source refers to.
      * @return string
      */
-    abstract public function get_module() : string;
+    abstract public function get_module(): string;
 
     /**
      * Return the module table. By default, this is the module name, however some mods use a different table.
      * @return string
      */
-    public function get_module_table() : string {
+    public function get_module_table(): string {
         return $this->get_module();
     }
 
@@ -76,7 +83,7 @@ abstract class source_base {
      * Return the timelimit field used in the module table.
      * @return string
      */
-    public function get_timelimit_field() : string {
+    public function get_timelimit_field(): string {
         return '';
     }
 
@@ -84,7 +91,7 @@ abstract class source_base {
      * Return the available/timeopen field used in the module table.
      * @return string
      */
-    public function get_open_field() : string {
+    public function get_open_field(): string {
         return '';
     }
 
@@ -92,7 +99,7 @@ abstract class source_base {
      * Return the duedate/timeclose field used in the module table.
      * @return string
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return '';
     }
 
@@ -100,7 +107,7 @@ abstract class source_base {
      * Return the capability map for the module that users must have before the activity applies to them.
      * @return array
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return [];
     }
 
@@ -108,7 +115,7 @@ abstract class source_base {
      * Return the name of the source being rendered.
      * @return string
      */
-    abstract public function get_name() : string;
+    abstract public function get_name(): string;
 
     /**
      * Set up the required JS in the global $PAGE object.
@@ -131,7 +138,7 @@ abstract class source_base {
      * @param bool $limited If limited, only return a subset of data. Otherwise reports can try and render thousands of data points.
      * @return array $tracking Tracking reocrds for the quiz.
      */
-    protected function get_tracking(int $assessid, bool $limited = false) : array {
+    protected function get_tracking(int $assessid, bool $limited = false): array {
         global $DB;
 
         $module = $this->get_module();

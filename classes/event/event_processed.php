@@ -48,7 +48,7 @@ class event_processed extends base {
      *
      * @return string
      */
-    public static function get_name() : string {
+    public static function get_name(): string {
         return get_string('eventeventprocessed', 'local_assessfreq');
     }
 
@@ -57,7 +57,7 @@ class event_processed extends base {
      *
      * @return string
      */
-    public function get_description() : string {
+    public function get_description(): string {
         return get_string('eventeven_processed_desc', 'local_assessfreq');
     }
 }

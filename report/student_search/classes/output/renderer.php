@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer.
+ * Student search renderer.
  *
  * @package   assessfreqreport_student_search
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -27,6 +27,14 @@ namespace assessfreqreport_student_search\output;
 
 use plugin_renderer_base;
 
+/**
+ * Student search renderer.
+ *
+ * @package   assessfreqreport_student_search
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
 
     /**
@@ -34,7 +42,7 @@ class renderer extends plugin_renderer_base {
      *
      * @return bool|string
      */
-    public function render_report() {
+    public function render_report(): bool|string {
 
         $preferencerows = get_user_preferences('local_assessfreq_student_search_table_rows_preference', 20);
         $rows = [
@@ -64,7 +72,7 @@ class renderer extends plugin_renderer_base {
                     'id' => 'assessfreqreport-student-search',
                     'name' => get_string('student_search:head', 'assessfreqreport_student_search'),
                     'rows' => [$rows[$preferencerows] => 'true'],
-                ]
+                ],
             ]
         );
     }

@@ -28,6 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'assessfreqsource_data';
 $plugin->release = '2024040300';
 $plugin->version = 2024040300;
-$plugin->requires = 2022041906; // Requires 4.0
+$plugin->requires = 2022041906; // Requires 4.0.
 $plugin->supported = [400, 401];
 $plugin->maturity = MATURITY_STABLE;

@@ -103,9 +103,9 @@ body #local-assessfreq-index {
 }
 
 #local-assessfreq-index .dropdown-menu .dropdown-item.active {
-    outline: 0 !important;
-    background-color: #0176be !important;
-    color: #fff !important;
+    outline: 0;
+    background-color: #0176be;
+    color: #fff;
 }
 
 /* Loading page and animation */
@@ -121,8 +121,6 @@ body #local-assessfreq-index {
     border-radius: 50%;
     width: 2.5em;
     height: 2.5em;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
     -webkit-animation: load7 1.8s infinite ease-in-out;
     animation: load7 1.8s infinite ease-in-out;
 }
@@ -133,7 +131,6 @@ body #local-assessfreq-index {
     margin: 80px auto;
     position: relative;
     text-indent: -9999em;
-    -webkit-transform: translateZ(0);
     -ms-transform: translateZ(0);
     transform: translateZ(0);
     -webkit-animation-delay: -0.16s;

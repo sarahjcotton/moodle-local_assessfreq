@@ -42,7 +42,7 @@ use stdClass;
  *
  * @runTestsInSeparateProcesses
  */
-class external_test extends \advanced_testcase {
+final class external_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.

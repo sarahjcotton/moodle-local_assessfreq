@@ -43,7 +43,7 @@ class data_process extends scheduled_task {
      *
      * @return string
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string('task:dataprocess', 'local_assessfreq');
     }
 
@@ -97,15 +97,5 @@ class data_process extends scheduled_task {
         ]);
         $event->trigger();
         mtrace('local_assessfreq: Processing user events finished in: ' . $actionduration . ' seconds');
-
-        //mtrace('local_assessfreq: Clearing legacy tracking data');
-        //$actionstart = time();
-        //$actionduration = time() - $actionstart;
-        //$event = event_processed::create([
-        //    'context' => $context,
-        //    'other' => ['action' => 'user', 'duration' => $actionduration],
-        //]);
-        //$event->trigger();
-        //mtrace('local_assessfreq: Processing user events finished in: ' . $actionduration . ' seconds');
     }
 }

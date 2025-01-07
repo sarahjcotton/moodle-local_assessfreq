@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer.
+ * Heatmap renderer.
  *
  * @package   assessfreqreport_heatmap
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -29,31 +29,78 @@ use html_table;
 use html_table_cell;
 use html_table_row;
 use html_writer;
+use local_assessfreq\frequency;
 use plugin_renderer_base;
 
+/**
+ * Heatmap renderer.
+ *
+ * @package   assessfreqreport_heatmap
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
+
+    /**
+     * @var int
+     */
+    private int $preferenceyear;
+
+    /**
+     * @var mixed|string|null
+     */
+    private mixed $preferencemodules;
+
+    /**
+     * @var string
+     */
+    private string $preferencemetric;
+
+    /**
+     * @var int
+     */
+    private int $heatrangemax = 0;
+
+    /**
+     * @var int
+     */
+    private int $heatrangemin = 0;
+
+    /**
+     * @var int[]
+     */
+    private array $heatrangescales = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0];
 
     /**
      * Generate the HTML for the report.
      *
-     * @param $preferenceyear
-     * @param $preferencemodules
-     * @param $preferencemetric
-     * @param $events
-     * @param $heatrangescales
      * @return bool|string
      */
-    public function render_report($preferenceyear, $preferencemodules, $preferencemetric, $events, $heatrangescales) {
+    public function render_report(): bool|string {
 
-        $originalyear = $preferenceyear;
-        $orderedmonths = get_months_ordered();
+        if ($this->page->course->id !== SITEID && !get_config('assessfreqreport_heatmap', 'courselevelyearfilter')) {
+            $this->preferenceyear = date('Y', $this->page->course->startdate);
+        } else {
+            $this->preferenceyear = get_user_preferences('assessfreqreport_heatmap_year_preference', date('Y'));
+        }
+        $this->preferencemodules = json_decode(
+            get_user_preferences('assessfreqreport_heatmap_modules_preference', '["all"]'),
+            true
+        );
+        $this->preferencemetric = get_user_preferences('assessfreqreport_heatmap_metric_preference', 'assess');
 
-        $months = $this->get_calendar($preferenceyear, $orderedmonths, $events);
+        $events = $this->get_events();
+
+        $originalyear = $this->preferenceyear;
+        $orderedmonths = local_assessfreq_get_months_ordered();
+
+        $months = $this->get_calendar($this->preferenceyear, $orderedmonths, $events);
 
         $scalestable = new html_table();
         $scalestable->attributes['class'] = 'scales-table';
         $scalecells = [];
-        foreach ($heatrangescales as $heatrangescale => $heatrangecount) {
+        foreach ($this->heatrangescales as $heatrangescale => $heatrangecount) {
             if ($heatrangecount) {
                 $cell = new html_table_cell("$heatrangecount+");
                 $cell->attributes['class'] = "scales-cell heat-$heatrangescale";
@@ -62,7 +109,7 @@ class renderer extends plugin_renderer_base {
         }
         $scalestable->data = [new html_table_row($scalecells)];
 
-        $modules = get_modules($preferencemodules);
+        $modules = local_assessfreq_get_modules($this->preferencemodules);
 
         $selectedmodules = [];
         foreach ($modules as $module) {
@@ -80,13 +127,13 @@ class renderer extends plugin_renderer_base {
             'assessfreqreport_heatmap/heatmap',
             [
                 'filters' => [
-                    'years' => get_years($preferenceyear),
+                    'years' => local_assessfreq_get_years($this->preferenceyear),
                     'modules' => $modules,
-                    'metrics' => [$preferencemetric => ['active' => true]],
+                    'metrics' => [$this->preferencemetric => ['active' => true]],
                     'selected_modules' => implode(', ', $selectedmodules),
-                    'selected_metric' => get_string("filter:metric:$preferencemetric", 'assessfreqreport_heatmap'),
+                    'selected_metric' => get_string("filter:metric:$this->preferencemetric", 'assessfreqreport_heatmap'),
                 ],
-                'downloadmetric' => $preferencemetric,
+                'downloadmetric' => $this->preferencemetric,
                 'sesskey' => sesskey(),
                 'yearfilter' => $yearfilter,
                 'courseid' => $this->page->course->id,
@@ -101,12 +148,12 @@ class renderer extends plugin_renderer_base {
     /**
      * Get the calendar of events.
      *
-     * @param $preferenceyear
-     * @param $orderedmonths
-     * @param $events
+     * @param int $preferenceyear The year to get data for.
+     * @param array $orderedmonths The ordered list of months.
+     * @param array $events The events.
      * @return array
      */
-    private function get_calendar($preferenceyear, $orderedmonths, $events) : array {
+    private function get_calendar(int $preferenceyear, array $orderedmonths, array $events): array {
         $months = [];
 
         foreach ($orderedmonths as $monthnumber => $monthname) {
@@ -138,7 +185,7 @@ class renderer extends plugin_renderer_base {
                     $cell = new html_table_cell($i);
                     $cell->attributes = [
                         'class' => "show-dialog has-events heat-" . $events[$preferenceyear][$monthnumber][$i]['heat'],
-                        'data-target' => "$preferenceyear-$monthnumber-$i"
+                        'data-target' => "$preferenceyear-$monthnumber-$i",
                     ];
                     $week->cells[] = $cell;
                 } else {
@@ -157,5 +204,79 @@ class renderer extends plugin_renderer_base {
         }
 
         return $months;
+    }
+
+
+    /**
+     * Get all of the events and heat for each.
+     *
+     * @return array
+     */
+    private function get_events(): array {
+        $frequency = new frequency();
+
+        $orderedmonths = local_assessfreq_get_months_ordered();
+        $startmonth = array_key_first($orderedmonths);
+
+        $eventlist = $frequency->get_frequency_array(
+            $this->preferenceyear,
+            $startmonth,
+            $this->preferencemetric,
+            $this->preferencemodules
+        );
+
+        foreach ($eventlist as $year) {
+            foreach ($year as $month) {
+                foreach ($month as $day) {
+                    $this->heatrangemax = max($this->heatrangemax, $day['number']);
+                    $this->heatrangemin = min($this->heatrangemax, $day['number']);
+                }
+            }
+        }
+
+        foreach ($eventlist as &$year) {
+            foreach ($year as &$month) {
+                foreach ($month as &$day) {
+                    $heat = $this->get_heat($day['number']);
+                    $day['heat'] = $heat;
+                    if (!$this->heatrangescales[$heat]) {
+                        $this->heatrangescales[$heat] = $day['number'];
+                    }
+                    $this->heatrangescales[$heat] = min($day['number'], $this->heatrangescales[$heat]);
+                }
+            }
+        }
+        return $eventlist;
+    }
+
+    /**
+     * Calculate the heat value based on the ranges available.
+     *
+     * @param int $count The number of events in a given day.
+     * @return int
+     */
+    private function get_heat(int $count): int {
+        $scalemin = 1;
+
+        if ($count == $this->heatrangemin) {
+            return $scalemin;
+        }
+
+        $scalerange = 5;  // 0 - 5  steps.
+        $localrange = $this->heatrangemax - $this->heatrangemin;
+        if ($localrange <= 0) {
+            return 1;
+        }
+        $localpercent = ($count - $this->heatrangemin) / $localrange;
+        $heat = round(($localpercent * $scalerange) + 1);
+
+        // Clamp values.
+        if ($heat < 1) {
+            $heat = 1;
+        } else if ($heat > 6) {
+            $heat = 6;
+        }
+
+        return $heat;
     }
 }

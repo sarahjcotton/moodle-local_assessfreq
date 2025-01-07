@@ -30,18 +30,26 @@ use core\plugininfo\base;
 use moodle_url;
 use part_of_admin_tree;
 
+/**
+ * Report plugininfo.
+ *
+ * @package   local_assessfreq
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class assessfreqreport extends base {
 
     /**
      * Finds all enabled plugin names, the result may include missing plugins.
      * @return array of enabled plugins $pluginname=>$pluginname, null means unknown
      */
-    public static function get_enabled_plugins() : array {
+    public static function get_enabled_plugins(): array {
         $pluginmanager = \core_plugin_manager::instance();
         $plugins = $pluginmanager->get_plugins_of_type('assessfreqreport');
 
         if (empty($plugins)) {
-            return array();
+            return [];
         }
 
         $enabled = [];
@@ -58,7 +66,7 @@ class assessfreqreport extends base {
      *
      * @return bool Whether enabled.
      */
-    public function is_enabled() : bool {
+    public function is_enabled(): bool {
         return get_config('assessfreqreport_' . $this->name, 'enabled');
     }
 
@@ -72,10 +80,15 @@ class assessfreqreport extends base {
     }
 
     /**
-     * Include the settings.php file from sub plugins if they provide it.
-     * This is a copy of very similar implementations from various other subplugin areas.
+     *  Include the settings.php file from sub plugins if they provide it.
+     *  This is a copy of very similar implementations from various other subplugin areas.
+     *
+     * @param part_of_admin_tree $adminroot
+     * @param string $parentnodename
+     * @param bool $hassiteconfig
+     * @return void
      */
-    public function load_settings(part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig) {
+    public function load_settings(part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig): void {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE; // In case settings.php wants to refer to them.
         $ADMIN = $adminroot; // May be used in settings.php.
         $plugininfo = $this; // Also can be used inside settings.php.

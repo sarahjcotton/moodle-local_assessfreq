@@ -31,43 +31,54 @@ use assessfreqreport_summary_graphs\output\assess_by_month_student;
 use local_assessfreq\report_base;
 use stdClass;
 
+/**
+ * Main report class.
+ *
+ * @package   assessfreqreport_summary_graphs
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report extends report_base {
+    /**
+     * Weight is used to define the sort order.
+     */
     const WEIGHT = 40;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_name() : string {
+    public function get_name(): string {
         return get_string("tab:name", "assessfreqreport_summary_graphs");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tab_weight() : int {
+    public function get_tab_weight(): int {
         return self::WEIGHT;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_tablink() : string {
+    public function get_tablink(): string {
         return 'summary_graphs';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function has_access() : bool {
+    public function has_access(): bool {
         global $PAGE;
 
         return has_capability('assessfreqreport/summary_graphs:view', $PAGE->context);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_contents() : string {
+    public function get_contents(): string {
         global $PAGE;
 
         if ($PAGE->course->id !== SITEID && !get_config('assessfreqreport_summary_graphs', 'courselevelyearfilter')) {
@@ -75,7 +86,7 @@ class report extends report_base {
         } else {
             $year = get_user_preferences('assessfreqreport_summary_graphs_year_preference', date('Y'));
         }
-        $orderedmonths = get_months_ordered();
+        $orderedmonths = local_assessfreq_get_months_ordered();
         $startmonth = array_key_first($orderedmonths);
 
         $data = new stdClass();
@@ -89,9 +100,9 @@ class report extends report_base {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    protected function get_required_js() : void {
+    protected function get_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd('assessfreqreport_summary_graphs/summary_graphs', 'init');

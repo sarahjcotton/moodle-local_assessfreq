@@ -30,6 +30,7 @@ use assessfreqsource_assign\output\participant_summary;
 use assessfreqsource_assign\output\participant_trend;
 use assessfreqsource_assign\output\renderer;
 use assign;
+use context;
 use context_module;
 use local_assessfreq\frequency;
 use local_assessfreq\source_base;
@@ -44,51 +45,59 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
+/**
+ * Main source class.
+ *
+ * @package   assessfreqsource_assign
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2024
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class source extends source_base {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_module() : string {
+    public function get_module(): string {
         return 'assign';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function get_name(): string {
         return get_string("source:name", "assessfreqsource_assign");
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_open_field() : string {
+    public function get_open_field(): string {
         return 'allowsubmissionsfromdate';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_close_field() : string {
+    public function get_close_field(): string {
         return 'duedate';
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function get_user_capabilities() : array {
+    public function get_user_capabilities(): array {
         return ['mod/assign:submit'];
     }
 
     /**
      * Get the activity dashboard to be rendered in assessfreqreport_activity_dashboard plugin.
      *
-     * @param $cm
-     * @param $course
+     * @param stdClass $cm
+     * @param stdClass $course
      * @return string
      */
-    public function get_activity_dashboard($cm, $course) : string {
+    public function get_activity_dashboard($cm, $course): string {
         global $PAGE, $DB;
 
         $assign = new assign($cm->context, $cm, $course);
@@ -109,13 +118,14 @@ class source extends source_base {
             }
         }
 
-        $assign->overridecount = count($overridenparticipants);
+        $participantcount = $assign->count_participants(0);
+        $plugins = $assign->get_submission_plugins();
+        $participants = $assign->list_participants(0, false);
+        $groupsubmissionenabled = $assign->get_instance()->teamsubmission ? get_string('yes') : get_string('no');
 
         $submissions = [];
         $firststart = false;
         $laststart = false;
-
-        $participants = $assign->list_participants(0, false);
 
         foreach ($participants as $participant) {
             $submission = $assign->get_user_submission($participant->id, false);
@@ -135,25 +145,26 @@ class source extends source_base {
             }
         }
 
-        $assign->submissions = $submissions;
-        $assign->firststart = $firststart;
-        $assign->laststart = $laststart;
+        $assignobject = new stdClass();
 
-        $plugins = $assign->get_submission_plugins();
-        $assign->enabledsubmission_plugins = [];
+        $assignobject->submissions = $submissions;
+        $assignobject->firststart = $firststart;
+        $assignobject->laststart = $laststart;
+
+        $assignobject->enabledsubmission_plugins = [];
         foreach ($plugins as $plugin) {
             if ($plugin->is_enabled()) {
-                $assign->enabledsubmission_plugins[] = $plugin->get_name();
+                $assignobject->enabledsubmission_plugins[] = $plugin->get_name();
             }
         }
 
-        $assign->groupsubmissionenabled = $assign->get_instance()->teamsubmission ? get_string('yes') : get_string('no');
+        $assignobject->groupsubmissionenabled = $groupsubmissionenabled;
 
-        $assign->summarychart = (new participant_summary())->get_participant_summary_chart(
+        $assignobject->summarychart = (new participant_summary())->get_participant_summary_chart(
             $this->get_tracking($cm->instance, true)
         );
 
-        $assign->trendchart = (new participant_trend())->get_participant_trend_chart(
+        $assignobject->trendchart = (new participant_trend())->get_participant_trend_chart(
             $this->get_tracking($cm->instance, true)
         );
 
@@ -166,9 +177,12 @@ class source extends source_base {
             ]
         );
 
-        /* @var $renderer renderer */
+        $assignobject->overridecount = count($overridenparticipants);
+        $assignobject->participant_count = $participantcount;
+
+        /* @var $renderer renderer the source renderer. */
         $renderer = $PAGE->get_renderer("assessfreqsource_assign");
-        return $renderer->render_activity_dashboard($cm, $course, $assign);
+        return $renderer->render_activity_dashboard($cm, $course, $assignobject);
     }
 
     /**
@@ -185,7 +199,7 @@ class source extends source_base {
         int $now,
         int $lookahead = HOURSECS,
         int $lookbehind = HOURSECS
-    ) : array {
+    ): array {
         global $DB;
 
         $assignments = $this->get_tracked_assignments($now, $lookahead, $lookbehind);
@@ -229,7 +243,7 @@ class source extends source_base {
      * @param int $lookbehind The number of seconds from the provided now value to look behind when getting assignments.
      * @return array $assignments The assignments.
      */
-    private function get_tracked_assignments(int $now, int $lookahead, int $lookbehind) : array {
+    private function get_tracked_assignments(int $now, int $lookahead, int $lookbehind): array {
         global $DB, $PAGE;
 
         $starttime = $now + $lookahead;
@@ -266,7 +280,7 @@ class source extends source_base {
      * @param int $lookbehind The number of seconds from the provided now value to look behind when getting overrides.
      * @return array $assignments The assignments with applicable overrides.
      */
-    private function get_tracked_overrides(int $now, int $lookahead, int $lookbehind) : array {
+    private function get_tracked_overrides(int $now, int $lookahead, int $lookbehind): array {
         global $DB, $PAGE;
 
         $starttime = $now + $lookahead;
@@ -297,7 +311,13 @@ class source extends source_base {
         return $DB->get_records_sql($sql, $params);
     }
 
-    public function get_submissions($assignmentid) : stdClass {
+    /**
+     * Get the submissiongs for the assignment.
+     *
+     * @param int $assignmentid
+     * @return stdClass
+     */
+    public function get_submissions($assignmentid): stdClass {
         global $DB;
 
         $inprogress = 0;
@@ -330,13 +350,13 @@ class source extends source_base {
     /**
      * Get the override form for the modal.
      *
-     * @param $assignid
-     * @param $context
-     * @param $userid
-     * @param $formdata
+     * @param int $assignid
+     * @param context $context
+     * @param int $userid
+     * @param array $formdata
      * @return override_form
      */
-    public function get_override_form($assignid, $context, $userid, $formdata) : override_form {
+    public function get_override_form($assignid, $context, $userid, $formdata): override_form {
         global $DB;
 
         require_capability("mod/assign:manageoverrides", $context);
@@ -355,7 +375,7 @@ class source extends source_base {
         }
 
         // Merge defaults with data.
-        $keys = array('allowsubmissionsfromdate', 'duedate', 'timelimit', 'cutoffdate');
+        $keys = ['allowsubmissionsfromdate', 'duedate', 'timelimit', 'cutoffdate'];
         foreach ($keys as $key) {
             if (!isset($data->{$key})) {
                 $data->{$key} = $assign->{$key};
@@ -369,11 +389,11 @@ class source extends source_base {
     /**
      * Process the override form from the Ajax webservice call.
      *
-     * @param $activityid
-     * @param $submitteddata
+     * @param int $activityid
+     * @param array $submitteddata
      * @return int
      */
-    public function process_override_form($activityid, $submitteddata) : int {
+    public function process_override_form($activityid, $submitteddata): int {
         global $DB, $PAGE;
 
         // Check access.
@@ -433,8 +453,9 @@ class source extends source_base {
      * @param int $now Timestamp to use for reference for time.
      * @param int $hoursahead
      * @param int $hoursbehind
+     * @return string
      */
-    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind) {
+    public function get_inprogress_count(int $now, int $hoursahead, int $hoursbehind): string {
         // Get tracked assignments.
         $trackedassignments = $this->get_tracked_assignments_with_overrides($now, $hoursahead * HOURSECS, $hoursbehind * HOURSECS);
         $counts = [
@@ -460,9 +481,11 @@ class source extends source_base {
      * used in the in progress quizzes dashboard.
      *
      * @param int $now Timestamp to get chart data for.
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array With Generated chart object and chart data status.
      */
-    public function get_all_participants_inprogress_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_all_participants_inprogress_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         // Get assignments for the supplied timestamp.
         $assignments = $this->get_assign_summaries($now, $hoursahead, $hoursbehind);
@@ -509,9 +532,11 @@ class source extends source_base {
      * Get data for all inprogress assignments.
      *
      * @param int $now
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array|array[]
      */
-    public function get_inprogress_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_inprogress_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         return $this->get_assign_summaries($now, $hoursahead, $hoursbehind);
     }
@@ -520,9 +545,11 @@ class source extends source_base {
      * Get all upcoming data.
      *
      * @param int $now
+     * @param int $hoursahead
+     * @param int $hoursbehind
      * @return array|array[]
      */
-    public function get_upcoming_data(int $now, int $hoursahead, int $hoursbehind) : array {
+    public function get_upcoming_data(int $now, int $hoursahead, int $hoursbehind): array {
 
         return $this->get_assign_summaries($now, $hoursahead, $hoursbehind);
     }
@@ -531,9 +558,12 @@ class source extends source_base {
      * Get finished, in progress and upcoming assignments and their associated data.
      *
      * @param int $now Timestamp to use for reference for time.
+     * @param int $hoursahead
+     * @param int $hoursbehind
+     * @param bool $fulldata
      * @return array $assignments Array of finished, inprogress and upcoming assignments with associated data.
      */
-    public function get_assign_summaries(int $now, int $hoursahead, int $hoursbehind, bool $fulldata = true) : array {
+    public function get_assign_summaries(int $now, int $hoursahead, int $hoursbehind, bool $fulldata = true): array {
 
         // Get tracked assignments.
         $lookahead = $hoursahead * HOURSECS;
@@ -562,14 +592,17 @@ class source extends source_base {
 
                 $allowsubmissionsfromdate = $assignment->allowsubmissionsfromdate;
                 if ($assignment->allowsubmissionsfromdate < $time && $assignment->duedate > $time && $hour === 0) {
-                    $assignments['inprogress'][$assignment->id] = $fulldata ? $this->get_assign_data($assignment) : $assignment;
+                    $assigndata = $this->get_assign_data($assignment);
+                    $assignments['inprogress'][$assignment->id] = $fulldata ? $assigndata : $assignment;
                     unset($trackedassignments[$assignment->id]);
                 } else if ($allowsubmissionsfromdate >= $time && $allowsubmissionsfromdate < ($time + HOURSECS)) {
-                    $assignments['upcoming'][$time][$assignment->id] = $fulldata ? $this->get_assign_data($assignment) : $assignment;
+                    $assigndata = $this->get_assign_data($assignment);
+                    $assignments['upcoming'][$time][$assignment->id] = $fulldata ? $assigndata : $assignment;
                     unset($trackedassignments[$assignment->id]);
                 } else {
                     if (isset($assignment->overrides)) {
-                        $assignments['inprogress'][$assignment->id] = $fulldata ? $this->get_assign_data($assignment) : $assignment;
+                        $assigndata = $this->get_assign_data($assignment);
+                        $assignments['inprogress'][$assignment->id] = $fulldata ? $assigndata : $assignment;
                         unset($trackedassignments[$assignment->id]);
                     }
                 }
@@ -601,7 +634,7 @@ class source extends source_base {
      * @param object $assign The assignment to get data for.
      * @return stdClass $assigndata The retrieved assignment data.
      */
-    public function get_assign_data($assign) : stdClass {
+    public function get_assign_data($assign): stdClass {
         global $DB;
         $assigndata = new stdClass();
 
@@ -710,7 +743,7 @@ class source extends source_base {
      * @param context_module $context The context object of the assignment.
      * @return stdClass $overrideinfo Information about assignment overrides.
      */
-    private function get_assign_override_info(int $assignid, context_module $context) : stdClass {
+    private function get_assign_override_info(int $assignid, context_module $context): stdClass {
         global $DB;
 
         $capabilities = $this->get_user_capabilities();
