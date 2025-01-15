@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/tablelib.php');
 
-use assessfreqsource_quiz\Source;
+use assessfreqsource_quiz;
 use coding_exception;
 use html_writer;
 use local_assessfreq\frequency;
@@ -474,7 +474,7 @@ class user_table extends table_sql implements renderable {
         $capabilities = $frequency->get_module_capabilities('quiz');
 
         // Get the quizzes that we want users for.
-        $quizsource = new Source();
+        $quizsource = assessfreqsource_quiz\source::get_instance();
         $allquizzes = $quizsource->get_quiz_summaries($this->now, $this->hoursahead, $this->hoursbehind, false);
 
         $inprogressquizzes = $allquizzes['inprogress'];

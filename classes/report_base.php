@@ -39,9 +39,9 @@ abstract class report_base {
     /**
      * Contructor.
      */
-    public function __construct() {
-        $this->get_required_js();
-        $this->get_required_css();
+    private function __construct() {
+        $this->add_required_js();
+        $this->add_required_css();
     }
 
     /**
@@ -97,13 +97,13 @@ abstract class report_base {
      * Set up the required JS in the global $PAGE object.
      * @return void
      */
-    protected function get_required_js() {
+    protected function add_required_js() {
     }
 
     /**
      * Set up the required CSS in the global $PAGE object.
      * @return void
      */
-    protected function get_required_css() {
+    protected function add_required_css() {
     }
 }

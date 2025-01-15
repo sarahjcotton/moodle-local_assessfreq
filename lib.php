@@ -47,7 +47,7 @@ function local_assessfreq_extend_navigation_course(navigation_node $navigation, 
 /**
  * Get all of the subplugin reports that are enabled and instantiate the class.
  *
- * @param bool $ignoreenabled
+ * @param bool $ignoreenabled Ignore the is_enabled check.
  * @return array
  */
 function local_assessfreq_get_reports(bool $ignoreenabled = false): array {
@@ -70,7 +70,8 @@ function local_assessfreq_get_reports(bool $ignoreenabled = false): array {
  * Get all of the subplugin sources that are enabled and instantiate the class.
  *
  * @param bool $ignoreenabled
- * @param string $requiredmethod
+ * @param string $requiredmethod    Only load sources that contain the required method.
+ *                                  Usesful for calling specific sources for a report.
  * @return array
  */
 function local_assessfreq_get_sources(bool $ignoreenabled = false, $requiredmethod = ''): array {
@@ -159,7 +160,8 @@ function local_assessfreq_get_years($preference): array {
  * This is based on which sources have been enabled.
  *
  * @param array $preferences
- * @param string $requiredmethod
+ * @param string $requiredmethod    Only load sources that contain the required method.
+ *                                  Usesful for calling specific sources for a report.
  * @return array $modules The enabled modules.
  * @throws coding_exception
  */

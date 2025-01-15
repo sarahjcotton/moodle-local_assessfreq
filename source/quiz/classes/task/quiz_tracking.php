@@ -23,7 +23,6 @@
  */
 namespace assessfreqsource_quiz\task;
 
-use assessfreqsource_quiz\source;
 use core\task\scheduled_task;
 use local_assessfreq\frequency;
 use stdClass;
@@ -66,7 +65,7 @@ class quiz_tracking extends scheduled_task {
             $actionstart = 1594788000;
         }
 
-        $source = new source();
+        $source = \assessfreqsource_quiz\source::get_instance();
         $frequency = new frequency();
 
         $quizzes = $source->get_tracked_quizzes_with_overrides($actionstart);

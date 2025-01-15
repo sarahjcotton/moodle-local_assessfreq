@@ -102,7 +102,7 @@ class report extends report_base {
     /**
      * {@inheritDoc}
      */
-    protected function get_required_js(): void {
+    protected function add_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd('assessfreqreport_summary_graphs/summary_graphs', 'init');

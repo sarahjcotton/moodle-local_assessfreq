@@ -117,7 +117,7 @@ class report extends report_base {
     /**
      * {@inheritDoc}
      */
-    protected function get_required_js(): void {
+    protected function add_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd(
@@ -130,7 +130,7 @@ class report extends report_base {
     /**
      * {@inheritDoc}
      */
-    protected function get_required_css(): void {
+    protected function add_required_css(): void {
         global $PAGE;
 
         $PAGE->requires->css('/local/assessfreq/report/activities_in_progress/styles.css');

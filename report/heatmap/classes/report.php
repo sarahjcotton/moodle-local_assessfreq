@@ -85,7 +85,7 @@ class report extends report_base {
     /**
      * {@inheritDoc}
      */
-    protected function get_required_js(): void {
+    protected function add_required_js(): void {
         global $PAGE;
 
         $PAGE->requires->js_call_amd('assessfreqreport_heatmap/heatmap', 'init', [$PAGE->course->id]);
@@ -94,7 +94,7 @@ class report extends report_base {
     /**
      * {@inheritDoc}
      */
-    protected function get_required_css(): void {
+    protected function add_required_css(): void {
         global $PAGE;
         // The CSS for the heatmap is based on plugin config. As such this needs to be in-line.
         $PAGE->requires->css('/local/assessfreq/report/heatmap/dynamic-styles.php');

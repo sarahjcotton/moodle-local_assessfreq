@@ -601,7 +601,7 @@ final class quiz_test extends \advanced_testcase {
      * Test getting quiz override info.
      */
     public function test_get_quiz_override_info(): void {
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $context = \context_module::instance($this->quiz1->cmid);
 
         // We're testing a private method, so we need to setup reflector magic.
@@ -620,7 +620,7 @@ final class quiz_test extends \advanced_testcase {
      */
     public function test_get_quiz_questions(): void {
         global $DB;
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         [$course, $cm] = get_course_and_cm_from_instance($this->quiz1->id, 'quiz');
 
@@ -645,7 +645,7 @@ final class quiz_test extends \advanced_testcase {
      */
     public function test_get_quiz_data(): void {
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $result = $quizdata->get_quiz_data($this->quiz1);
 
         $this->assertEquals('5 July 2020, 9:00 AM', $result->earlyopen);
@@ -661,7 +661,7 @@ final class quiz_test extends \advanced_testcase {
      * Test quiz override tracking.
      */
     public function test_get_tracked_overrides(): void {
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_overrides');
         $method->setAccessible(true); // Allow accessing of private method.
 
@@ -680,7 +680,7 @@ final class quiz_test extends \advanced_testcase {
      * Test quiz tracking.
      */
     public function test_get_tracked_quizzes(): void {
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_quizzes');
         $method->setAccessible(true); // Allow accessing of private method.
 
@@ -713,7 +713,7 @@ final class quiz_test extends \advanced_testcase {
 
         $DB->insert_record('quiz_overrides', $override);
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_quizzes_with_overrides');
         $method->setAccessible(true); // Allow accessing of private method.
 
@@ -756,7 +756,7 @@ final class quiz_test extends \advanced_testcase {
      */
     public function test_get_quiz_attempts(): void {
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_quiz_attempts');
         $method->setAccessible(true); // Allow accessing of private method.
@@ -795,7 +795,7 @@ final class quiz_test extends \advanced_testcase {
         $now = 1594788000;
         $this->setup_quiz_tracking($now, $this->quiz1->id);
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracking');
         $method->setAccessible(true); // Allow accessing of private method.
 
@@ -816,7 +816,7 @@ final class quiz_test extends \advanced_testcase {
         $this->setup_quiz_tracking($now, $this->quiz3->id);
         $this->setup_quiz_tracking($now, $this->quiz4->id);
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $result = $quizdata->get_inprogress_count($now, 0, 0, false);
 
         $this->assertEquals(3, $result['assessments']);
@@ -827,7 +827,7 @@ final class quiz_test extends \advanced_testcase {
      * Test getting finished quizzes.
      */
     public function test_get_quizzes_finished(): void {
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         $now = 1594788000;
         $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
@@ -843,7 +843,7 @@ final class quiz_test extends \advanced_testcase {
         $this->setup_quiz_tracking($now, $this->quiz3->id);
         $this->setup_quiz_tracking($now, $this->quiz4->id);
 
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
 
         $this->assertCount(3, $result['inprogress']);
@@ -857,7 +857,7 @@ final class quiz_test extends \advanced_testcase {
      * Test getting upcomming quizzes.
      */
     public function test_get_quizzes_upcomming(): void {
-        $quizdata = new \assessfreqsource_quiz\source();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         $now = 1594780800;
         $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
