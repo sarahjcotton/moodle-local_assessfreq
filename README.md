@@ -1,4 +1,4 @@
-![Build Status](https://github.com/catalyst/moodle-local_assessfreq/actions/workflows/master.yml/badge.svg?branch=master)
+[![ci](https://github.com/catalyst/moodle-local_assessfreq/actions/workflows/ci.yml/badge.svg?branch=MOODLE_403_STABLE)](https://github.com/catalyst/moodle-local_assessfreq/actions/workflows/ci.yml?branch=MOODLE_403_STABLE)
 
 # Assessment frequency #
 
