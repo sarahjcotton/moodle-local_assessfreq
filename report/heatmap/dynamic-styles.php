@@ -27,8 +27,6 @@ define('NO_MOODLE_COOKIES', true);
 
 require_once(dirname(__FILE__, 5) . '/config.php');
 
-$PAGE->set_url($url);
-
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 header('Expires: ' . gmdate("D, d M Y H:i:s", time() + 60) . ' GMT');
 header('Cache-control: max_age = '. 60);

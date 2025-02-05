@@ -56,29 +56,110 @@ class renderer extends plugin_renderer_base {
      * Report renderer.
      *
      * @param array $data
-     * @return array|bool|string
+     * @return string
      * @throws coding_exception
-     * @throws dml_exception
      * @throws moodle_exception
      */
     public function render_report(array $data): string {
 
-        // Charts array for unit testing.
-        $charts = [];
+        // Charts array.
+        $charts = $this->get_charts($data);
 
         // In progress counts.
-        $contents = '';
+        $progresscounts = '';
         foreach ($data['inprogress'] as $count) {
-            $contents .= html_writer::div($count);
+            $progresscounts .= html_writer::div($count);
         }
 
         $progresssummarycontainer = $this->render_from_template(
             'local_assessfreq/card',
             [
                 'header' => get_string('inprogress:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => $contents,
+                'contents' => $progresscounts,
             ]
         );
+
+        $upcomingcontainer = $this->render_from_template(
+            'local_assessfreq/card',
+            [
+                'header' => get_string('upcomingchart:head', 'assessfreqreport_activities_in_progress'),
+                'contents' => $charts['upcoming']['contents'],
+            ]
+        );
+
+        $summarycontainer = $this->render_from_template(
+            'local_assessfreq/card',
+            [
+                'header' => get_string('summarychart:head', 'assessfreqreport_activities_in_progress'),
+                'contents' => $charts['participants']['contents'],
+            ]
+        );
+
+        // Activies in progress container.
+        $progresscontainer = $this->render_from_template(
+            'local_assessfreq/card',
+            [
+                'header' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
+                'contents' => 'No data',
+            ]
+        );
+
+        $preferencerows = get_user_preferences('assessfreqreport_activities_in_progress_table_rows_preference', 20);
+        $rows = [
+            20 => 'rows20',
+            50 => 'rows50',
+            100 => 'rows100',
+        ];
+
+        $preferencehoursahead = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursahead_preference', 8);
+        $preferencehoursbehind = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursbehind_preference', 1);
+
+        $hours = [
+            0 => 'hours0',
+            1 => 'hours1',
+            4 => 'hours4',
+            8 => 'hours8',
+        ];
+
+        $preferencemodule = json_decode(
+            get_user_preferences('assessfreqreport_activities_in_progress_modules_preference', '["all"]'),
+            true
+        );
+        // Only get modules with the "get_inprogress_count" method as only these display on the report.
+        $modules = local_assessfreq_get_modules($preferencemodule, 'get_inprogress_count');
+
+        return $this->render_from_template(
+            'assessfreqreport_activities_in_progress/activities-in-progress',
+            [
+                'filters' => [
+                    'modules' => $modules,
+                    'hoursahead' => [$hours[$preferencehoursahead] => 'true'],
+                    'hoursbehind' => [$hours[$preferencehoursbehind] => 'true'],
+                ],
+                'progresssummary' => $progresssummarycontainer,
+                'upcoming' => $upcomingcontainer,
+                'summary' => $summarycontainer,
+                'progress' => $progresscontainer,
+                'table' => [
+                    'id' => 'assessfreqreport-activities-in-progress',
+                    'name' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
+                    'rows' => [$rows[$preferencerows] => 'true'],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Get the rendered charts and unrendered charts.
+     *
+     * @param array $data
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function get_charts(array $data): array {
+
+        $charts = [];
 
         // Upcoming activities starting.
         $labels = [];
@@ -137,14 +218,10 @@ class renderer extends plugin_renderer_base {
         } else {
             $contents = '';
         }
-        $charts['upcoming'] = $chart;
-        $upcomingcontainer = $this->render_from_template(
-            'local_assessfreq/card',
-            [
-                'header' => get_string('upcomingchart:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => $contents,
-            ]
-        );
+        $charts['upcoming'] = [
+            'chart' => $chart,
+            'contents' => $contents,
+        ];
 
         // Participant summary container.
         $seriesdata = [
@@ -191,72 +268,11 @@ class renderer extends plugin_renderer_base {
         } else {
             $contents = '';
         }
-        $charts['participants'] = $chart;
-
-        $summarycontainer = $this->render_from_template(
-            'local_assessfreq/card',
-            [
-                'header' => get_string('summarychart:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => $contents,
-            ]
-        );
-
-        // Activies in progress container.
-        $progresscontainer = $this->render_from_template(
-            'local_assessfreq/card',
-            [
-                'header' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
-                'contents' => 'No data',
-            ]
-        );
-
-        $preferencerows = get_user_preferences('assessfreqreport_activities_in_progress_table_rows_preference', 20);
-        $rows = [
-            20 => 'rows20',
-            50 => 'rows50',
-            100 => 'rows100',
+        $charts['participants'] = [
+            'chart' => $chart,
+            'contents' => $contents,
         ];
-
-        $preferencehoursahead = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursahead_preference', 8);
-        $preferencehoursbehind = (int)get_user_preferences('assessfreqreport_activities_in_progress_hoursbehind_preference', 1);
-
-        $hours = [
-            0 => 'hours0',
-            1 => 'hours1',
-            4 => 'hours4',
-            8 => 'hours8',
-        ];
-
-        $preferencemodule = json_decode(
-            get_user_preferences('assessfreqreport_activities_in_progress_modules_preference', '["all"]'),
-            true
-        );
-        // Only get modules with the "get_inprogress_count" method as only these display on the report.
-        $modules = local_assessfreq_get_modules($preferencemodule, 'get_inprogress_count');
-
-        if (PHPUNIT_TEST) {
-            return $charts;
-        }
-
-        return $this->render_from_template(
-            'assessfreqreport_activities_in_progress/activities-in-progress',
-            [
-                'filters' => [
-                    'modules' => $modules,
-                    'hoursahead' => [$hours[$preferencehoursahead] => 'true'],
-                    'hoursbehind' => [$hours[$preferencehoursbehind] => 'true'],
-                ],
-                'progresssummary' => $progresssummarycontainer,
-                'upcoming' => $upcomingcontainer,
-                'summary' => $summarycontainer,
-                'progress' => $progresscontainer,
-                'table' => [
-                    'id' => 'assessfreqreport-activities-in-progress',
-                    'name' => get_string('inprogresstable:head', 'assessfreqreport_activities_in_progress'),
-                    'rows' => [$rows[$preferencerows] => 'true'],
-                ],
-            ]
-        );
+        return $charts;
     }
 
     /**
