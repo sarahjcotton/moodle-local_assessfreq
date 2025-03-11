@@ -33,7 +33,7 @@ function xmldb_local_assessfreq_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2024040302) {
+    if ($oldversion < 2025010300) {
 
         $table = new xmldb_table('local_assessfreq_trend');
         /*
@@ -50,7 +50,7 @@ function xmldb_local_assessfreq_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
 
-        upgrade_plugin_savepoint(true, 2024040302, 'local', 'assessfreq');
+        upgrade_plugin_savepoint(true, 2025010300, 'local', 'assessfreq');
     }
 
     return true;

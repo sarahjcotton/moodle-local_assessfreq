@@ -60,7 +60,7 @@ class assign_tracking extends scheduled_task {
 
         $actionstart = time();
 
-        $source = new source();
+        $source = source::get_instance();
         $frequency = new frequency();
 
         $assignments = $source->get_tracked_assignments_with_overrides($actionstart);
