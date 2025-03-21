@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use assign;
 use cache;
+use cm_info;
 use context_module;
 use ReflectionMethod;
 use stdClass;
@@ -43,7 +44,7 @@ require_once($CFG->dirroot . '/calendar/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\frequency
  */
-class frequency_test extends \advanced_testcase {
+final class frequency_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -97,10 +98,10 @@ class frequency_test extends \advanced_testcase {
             'course' => $course->id,
             'duedate' => 1585445775,
         ]);
-        $this->assign1 = new assign(context_module::instance($assignrow1->cmid), false, false);
-        $this->assign2 = new assign(context_module::instance($assignrow2->cmid), false, false);
-        $this->assign1->cmid = $assignrow1->cmid;
-        $this->assign2->cmid = $assignrow2->cmid;
+        $cm = cm_info::create(get_coursemodule_from_instance('assign', $assignrow1->id));
+        $this->assign1 = new assign($cm->context, $cm, false);
+        $cm = cm_info::create(get_coursemodule_from_instance('assign', $assignrow2->id));
+        $this->assign2 = new assign($cm->context, $cm, false);
         $this->course = $course;
 
         // Create some users.
@@ -277,8 +278,11 @@ class frequency_test extends \advanced_testcase {
 
         $result = $frequency->get_event_users_raw($this->assign1->get_context()->id, 'assign');
 
-        $this->assertEquals($this->user1->id, $result[$this->user1->id]->id);
-        $this->assertEquals($this->user2->id, $result[$this->user2->id]->id);
+        $user1 = (bool) array_column($result, null, 'userid')[$this->user1->id];
+        $user2 = (bool) array_column($result, null, 'userid')[$this->user2->id];
+
+        $this->assertTrue($user1);
+        $this->assertTrue($user2);
     }
 
     /**
@@ -372,14 +376,14 @@ class frequency_test extends \advanced_testcase {
         $data = $sitecache->get('all');
         $this->assertEmpty($data);
 
-        $result = $frequency->get_site_events('all', 0, 0, false);
+        $result = $frequency->get_site_events(0, 'all', 0, 0, false);
 
         $this->assertCount(2, $result);
 
         $data = $sitecache->get('all');
         $this->assertCount(2, $data->events);
 
-        $result = $frequency->get_site_events('forum', 0, 0, true);
+        $result = $frequency->get_site_events(0, 'forum', 0, 0, true);
         $this->assertEmpty($result);
 
         $data = $sitecache->get('forum');
@@ -388,11 +392,11 @@ class frequency_test extends \advanced_testcase {
         $this->course->visible = 0;
         $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-        $result = $frequency->get_site_events('all', 0, 0, false);
+        $result = $frequency->get_site_events(0, 'all', 0, 0, false);
         $this->assertEmpty($result);
 
         set_config('hiddencourses', '1', 'local_assessfreq');
-        $result = $frequency->get_site_events('all', 0, 0, false);
+        $result = $frequency->get_site_events(0, 'all', 0, 0, false);
         $this->assertCount(2, $result);
     }
 
@@ -405,7 +409,7 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events($duedate);
 
         $coursecache = cache::make('local_assessfreq', 'courseevents');
-        $cachekey = (string)$this->course->id . '_all';
+        $cachekey = (string)$this->course->id . '_all_0_0';
         $data = $coursecache->get($cachekey);
         $this->assertEmpty($data);
 
@@ -415,10 +419,10 @@ class frequency_test extends \advanced_testcase {
         $data = $coursecache->get($cachekey);
         $this->assertCount(2, $data->events);
 
-        $result = $frequency->get_course_events($this->course->id, 'forum', 0, 0, true);
+        $result = $frequency->get_course_events($this->course->id, 'forum');
         $this->assertEmpty($result);
 
-        $result = $frequency->get_course_events(3, 'all', 0, 0, true);
+        $result = $frequency->get_course_events(3);
         $this->assertEmpty($result);
 
         $data = $coursecache->get('forum');
@@ -478,155 +482,21 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events($duedate);
         $frequency->process_user_events($duedate);
 
-        $result = $frequency->get_user_events_all('all', 0, 0, false);
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertCount(4, $result);
 
-        $result = iterator_to_array($frequency->get_user_events_all('forum', 0, 0, true));
+        $result = $frequency->get_user_events_all(SITEID, 'forum');
         $this->assertEmpty($result);
 
         $this->course->visible = 0;
         $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-        $result = iterator_to_array($frequency->get_user_events_all('all', 0, 0, false));
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertEmpty($result);
 
         set_config('hiddencourses', '1', 'local_assessfreq');
-        $result = $frequency->get_user_events_all('all', 0, 0, false);
+        $result = $frequency->get_user_events_all(SITEID);
         $this->assertCount(4, $result);
-    }
-
-    /**
-     * Test getting conflict data.
-     */
-    public function test_get_conflicts(): void {
-        global $DB;
-
-        // Setup records in DB.
-        $lasrecord1 = new stdClass();
-        $lasrecord1->module = 'quiz';
-        $lasrecord1->instanceid = 1;
-        $lasrecord1->courseid = 2;
-        $lasrecord1->contextid = 4;
-        $lasrecord1->timestart = 1585728000; // Time in readable format 2020-04-01 @ 8:00:00am GMT.
-        $lasrecord1->timeend = 1585814400; // Time in readable format 2020-04-02 @ 8:00:00am GMT.
-        $lasrecord1->endyear = 2020;
-        $lasrecord1->endmonth = 4;
-        $lasrecord1->endday = 2;
-
-        $lasrecord2 = new stdClass();
-        $lasrecord2->module = 'quiz';
-        $lasrecord2->instanceid = 2;
-        $lasrecord2->courseid = 2;
-        $lasrecord2->contextid = 5;
-        $lasrecord2->timestart = 1585814401; // Time in readable format 2020-04-02 @ 8:00:01am GMT.
-        $lasrecord2->timeend = 1585900800; // Time in readable format 2020-04-03 @ 8:00:00am GMT.
-        $lasrecord2->endyear = 2020;
-        $lasrecord2->endmonth = 4;
-        $lasrecord2->endday = 3;
-
-        $lasrecord3 = new stdClass();
-        $lasrecord3->module = 'quiz';
-        $lasrecord3->instanceid = 3;
-        $lasrecord3->courseid = 2;
-        $lasrecord3->contextid = 6;
-        $lasrecord3->timestart = 1585900801; // Time in readable format 2020-04-03 @ 8:00:01am GMT.
-        $lasrecord3->timeend = 1586073600; // Time in readable format 2020-04-05 @ 8:00:00am GMT.
-        $lasrecord3->endyear = 2020;
-        $lasrecord3->endmonth = 4;
-        $lasrecord3->endday = 5;
-
-        $lasrecord4 = new stdClass();
-        $lasrecord4->module = 'quiz';
-        $lasrecord4->instanceid = 4;
-        $lasrecord4->courseid = 2;
-        $lasrecord4->contextid = 7;
-        $lasrecord4->timestart = 1585987200; // Time in readable format 2020-04-04 @ 8:00:00am GMT.
-        $lasrecord4->timeend = 1586160000; // Time in readable format 2020-04-06 @ 8:00:00am GMT.
-        $lasrecord4->endyear = 2020;
-        $lasrecord4->endmonth = 4;
-        $lasrecord4->endday = 6;
-
-        $lasrecord5 = new stdClass();
-        $lasrecord5->module = 'quiz';
-        $lasrecord5->instanceid = 5;
-        $lasrecord5->courseid = 2;
-        $lasrecord5->contextid = 8;
-        $lasrecord5->timestart = 1586073601; // Time in readable format 2020-04-05 @ 8:00:01am GMT.
-        $lasrecord5->timeend = 1586246400; // Time in readable format 2020-04-07 @ 8:00:00am GMT.
-        $lasrecord5->endyear = 2020;
-        $lasrecord5->endmonth = 4;
-        $lasrecord5->endday = 7;
-
-        $lasrecord6 = new stdClass();
-        $lasrecord6->module = 'assign';
-        $lasrecord6->instanceid = 6;
-        $lasrecord6->courseid = 2;
-        $lasrecord6->contextid = 9;
-        $lasrecord6->timestart = 1586084400; // Time in readable format 2020-04-05 @ 11:00:00am GMT.
-        $lasrecord6->timeend = 1586160000; // Time in readable format 2020-04-06 @ 8:00:00am GMT.
-        $lasrecord6->endyear = 2020;
-        $lasrecord6->endmonth = 4;
-        $lasrecord6->endday = 6;
-
-        $lasrecord7 = new stdClass();
-        $lasrecord7->module = 'quiz';
-        $lasrecord7->instanceid = 7;
-        $lasrecord7->courseid = 2;
-        $lasrecord7->contextid = 10;
-        $lasrecord7->timestart = 1586073601; // Time in readable format 2020-04-05 @ 8:00:01am GMT.
-        $lasrecord7->timeend = 1586246400; // Time in readable format 2020-04-07 @ 8:00:00am GMT.
-        $lasrecord7->endyear = 2020;
-        $lasrecord7->endmonth = 4;
-        $lasrecord7->endday = 6;
-
-        // Record 1 and 2 should not overlap.
-        // Record 3 overlaps Record 4.
-        // Record 4 overlaps Record 5.
-        // So Record 4 should have two conflicts (record 3 and 5).
-        // So Record 3 and 5 should have one conflict (record 4).
-        // Record 6 should not have any conflicts because it is not a quiz.
-        // Record 7 should not have any conflicts because it has no users.
-
-        // Insert records in to database.
-        $records = [$lasrecord1, $lasrecord2, $lasrecord3, $lasrecord4, $lasrecord5, $lasrecord6, $lasrecord7];
-        $userids = [234, 456, 789];
-        $eventarray = [];
-        foreach ($records as $record) {
-            $eventid = $DB->insert_record('local_assessfreq_site', $record);
-            $eventarray[$record->instanceid] = $eventid;
-            if ($record->instanceid != 7) { // Don't add users for record 7.
-                foreach ($userids as $userid) {
-                    if ($userid == 789 && $record->instanceid == 3) {
-                        continue;
-                    }
-                    $userrecord = new stdClass();
-                    $userrecord->userid = $userid;
-                    $userrecord->eventid = $eventid;
-                    $DB->insert_record('local_assessfreq_user', $userrecord);
-                }
-            }
-        }
-
-        $frequency = new frequency();
-
-        // We're testing a private method, so we need to setup reflector magic.
-        $method = new ReflectionMethod('\local_assessfreq\frequency', 'get_conflicts');
-        $method->setAccessible(true); // Allow accessing of private method.
-
-        $results = $method->invoke($frequency, 0);
-
-        // Expect total of 4 conflicts.
-        $this->assertCount(4, $results);
-
-        // Make sure we don't have any references to records that don't have conflicts.
-        foreach ($results as $result) {
-            $this->assertNotEquals($eventarray[1], $result->eventid);
-            $this->assertNotEquals($eventarray[1], $result->conflictid);
-            $this->assertNotEquals($eventarray[2], $result->eventid);
-            $this->assertNotEquals($eventarray[2], $result->conflictid);
-            $this->assertNotEquals($eventarray[7], $result->eventid);
-            $this->assertNotEquals($eventarray[7], $result->conflictid);
-        }
     }
 
     /**
@@ -669,7 +539,7 @@ class frequency_test extends \advanced_testcase {
 
         // Cache should be initially empty.
         $eventduecache = cache::make('local_assessfreq', 'eventsduemonth');
-        $cachekey = (string)$year;
+        $cachekey = (string)$year . "_0";
         $data = $eventduecache->get($cachekey);
         $this->assertEmpty($data);
 
@@ -686,11 +556,11 @@ class frequency_test extends \advanced_testcase {
         $this->course->visible = 0;
         $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-        $result = $frequency->get_events_due_by_month($year, false);
+        $result = $frequency->get_events_due_by_month($year, 0, false);
         $this->assertEmpty($result);
 
         set_config('hiddencourses', '1', 'local_assessfreq');
-        $result = $frequency->get_events_due_by_month($year, false);
+        $result = $frequency->get_events_due_by_month($year, 0, false);
         $this->assertCount(12, $result);
     }
 
@@ -884,7 +754,7 @@ class frequency_test extends \advanced_testcase {
 
         // Cache should be initially empty.
         $yeareventscache = cache::make('local_assessfreq', 'eventsdueactivity');
-        $cachekey = (string)$year . '_activity';
+        $cachekey = (string)$year . '_0';
         $data = $yeareventscache->get($cachekey);
         $this->assertEmpty($data);
 
@@ -902,11 +772,11 @@ class frequency_test extends \advanced_testcase {
         $this->course->visible = 0;
         $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-        $result = $frequency->get_events_due_by_activity($year, false);
+        $result = $frequency->get_events_due_by_activity($year, 0, false);
         $this->assertEmpty($result);
 
         set_config('hiddencourses', '1', 'local_assessfreq');
-        $result = $frequency->get_events_due_by_activity($year, false);
+        $result = $frequency->get_events_due_by_activity($year, 0, false);
         $this->assertCount(3, $result);
     }
 
@@ -944,7 +814,7 @@ class frequency_test extends \advanced_testcase {
 
         // Cache should be initially empty.
         $monthlyusercache = cache::make('local_assessfreq', 'monthlyuser');
-        $cachekey = (string)$year;
+        $cachekey = (string)$year . "_0";
         $data = $monthlyusercache->get($cachekey);
         $this->assertEmpty($data);
 
@@ -966,11 +836,11 @@ class frequency_test extends \advanced_testcase {
          $this->course->visible = 0;
          $DB->set_field('course', 'visible', 0, ['id' => $this->course->id]);
 
-         $result = $frequency->get_events_due_monthly_by_user($year, false);
+         $result = $frequency->get_events_due_monthly_by_user($year, 0, false);
          $this->assertEmpty($result);
 
          set_config('hiddencourses', '1', 'local_assessfreq');
-         $result = $frequency->get_events_due_monthly_by_user($year, false);
+         $result = $frequency->get_events_due_monthly_by_user($year, 0, false);
          $this->assertCount(12, $result);
     }
 
@@ -987,7 +857,7 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events($duedate);
         $frequency->process_user_events($duedate);
 
-        $result = $frequency->get_frequency_array($year, $metric, $modules);
+        $result = $frequency->get_frequency_array($year, 0, $metric, $modules);
         $this->assertEquals(1, $result[2020][3][29]['number']);
         $this->assertEquals(1, $result[2020][3][28]['number']);
         $this->assertEquals(1, $result[2020][3][29]['assign']);
@@ -995,11 +865,11 @@ class frequency_test extends \advanced_testcase {
 
         $metric = 'students';
         $freqarraycache = cache::make('local_assessfreq', 'usereventsallfrequencyarray');
-        $cachekey = 'all_1577808000_1609430399';
+        $cachekey = '1_all_1575129600_1606751999';
         $data = $freqarraycache->get($cachekey);
         $this->assertEmpty($data);
 
-        $result = $frequency->get_frequency_array($year, $metric, $modules);
+        $result = $frequency->get_frequency_array($year, 0, $metric, $modules);
         $this->assertEquals(2, $result[2020][3][29]['number']);
         $this->assertEquals(2, $result[2020][3][28]['number']);
         $this->assertEquals(2, $result[2020][3][29]['assign']);
@@ -1025,7 +895,7 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events($duedate);
         $frequency->process_user_events($duedate);
 
-        $result = $frequency->get_download_data($year, $metric, $modules);
+        $result = $frequency->get_download_data($year, 0, $metric, $modules);
 
         $this->assertMatchesRegularExpression('/mod\/assign\/view/', $result[0][4]);
         $this->assertMatchesRegularExpression('/mod\/assign\/view/', $result[1][4]);
@@ -1039,32 +909,29 @@ class frequency_test extends \advanced_testcase {
      * Test getting heat colors.
      */
     public function test_get_heat_colors(): void {
-        $frequency = new frequency();
-        $result = $frequency->get_heat_colors();
+        $config = get_config('assessfreqreport_heatmap');
 
-        $this->assertEquals('#FDF9CD', $result[1]);
-        $this->assertEquals('#A2DAB5', $result[2]);
-        $this->assertEquals('#41B7C5', $result[3]);
-        $this->assertEquals('#4D7FB9', $result[4]);
-        $this->assertEquals('#283B94', $result[5]);
-        $this->assertEquals('#8C0010', $result[6]);
+        $this->assertEquals('#FDF9CD', $config->heat1);
+        $this->assertEquals('#A2DAB5', $config->heat2);
+        $this->assertEquals('#41B7C5', $config->heat3);
+        $this->assertEquals('#4D7FB9', $config->heat4);
+        $this->assertEquals('#283B94', $config->heat5);
+        $this->assertEquals('#8C0010', $config->heat6);
 
-        set_config('heat3', '#FFFFFF', 'local_assessfreq');
-        $result = $frequency->get_heat_colors();
-        $this->assertEquals('#FFFFFF', $result[3]);
+        set_config('heat3', '#FFFFFF', 'assessfreqreport_heatmap');
+        $config = get_config('assessfreqreport_heatmap');
+        $this->assertEquals('#FFFFFF', $config->heat3);
     }
 
     /**
      * Test getting modules to process.
      */
     public function test_get_process_modules(): void {
-        global $DB;
 
-        $DB->set_field('modules', 'visible', '0', ['name' => 'scorm']);
-        $DB->set_field('modules', 'visible', '0', ['name' => 'choice']);
-
-        set_config('modules', 'quiz,assign,scorm,choice', 'local_assessfreq');
-        set_config('disabledmodules', '0', 'local_assessfreq');
+        set_config('enabled', 1, 'assessfreqsource_quiz');
+        set_config('enabled', 1, 'assessfreqsource_assign');
+        set_config('enabled', 0, 'assessfreqsource_scorm');
+        set_config('enabled', 0, 'assessfreqsource_choice');
 
         $frequency = new frequency();
         $result = $frequency->get_process_modules();
@@ -1074,9 +941,9 @@ class frequency_test extends \advanced_testcase {
         $this->assertNotContains('scorm', $result);
         $this->assertNotContains('choice', $result);
 
-        set_config('disabledmodules', '1', 'local_assessfreq');
+        set_config('enabled', 1, 'assessfreqsource_scorm');
+        set_config('enabled', 1, 'assessfreqsource_choice');
         $result = $frequency->get_process_modules();
-        ;
 
         $this->assertContains('quiz', $result);
         $this->assertContains('assign', $result);
@@ -1095,7 +962,7 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events(0);
         $frequency->process_user_events(0);
 
-        $result = $frequency->get_day_events($date, $modules);
+        $result = $frequency->get_day_events(SITEID, $date, $modules);
 
         $this->assertEquals('assign', $result[0]->module);
         $this->assertEquals(2, $result[0]->usercount);
@@ -1114,9 +981,9 @@ class frequency_test extends \advanced_testcase {
         $frequency = new frequency();
         $frequency->process_site_events(0);
         $frequency->process_user_events(0);
-        course_delete_module($this->assign1->cmid);
+        course_delete_module($this->assign1->get_course_module()->id);
 
-        $result = $frequency->get_day_events($date, $modules);
+        $result = $frequency->get_day_events(SITEID, $date, $modules);
 
         $this->assertEmpty($result);
     }
@@ -1142,16 +1009,11 @@ class frequency_test extends \advanced_testcase {
                 'duedate' => 1585359375,
                 'allowsubmissionsfromdate' => 100,
         ]);
-        $assignrow5 = $generator->create_module('assign', [
-                'course' => $course2->id,
-                'duedate' => 1585359375,
-                'allowsubmissionsfromdate' => 100,
-                'name' => 'zzzz assign',
-        ]);
 
-        $assign3 = new assign(context_module::instance($assignrow3->cmid), false, false);
-        $assign4 = new assign(context_module::instance($assignrow4->cmid), false, false);
-        new assign(context_module::instance($assignrow5->cmid), false, false);
+        $cm = cm_info::create(get_coursemodule_from_instance('assign', $assignrow3->id));
+        $assign3 = new assign($cm->context, $cm, false);
+        $cm = cm_info::create(get_coursemodule_from_instance('assign', $assignrow4->id));
+        $assign4 = new assign($cm->context, $cm, false);
 
         $date = '2020-3-28';
         $modules = ['all'];
@@ -1160,7 +1022,7 @@ class frequency_test extends \advanced_testcase {
         $frequency->process_site_events(0);
         $frequency->process_user_events(0);
 
-        $result = $frequency->get_day_events($date, $modules);
+        $result = $frequency->get_day_events(SITEID, $date, $modules);
 
         $first = array_shift($result);
         $second = array_shift($result);

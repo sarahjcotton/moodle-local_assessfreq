@@ -24,7 +24,8 @@
 
 namespace local_assessfreq\output;
 
-use context_system;
+use assessfreqsource_quiz\output\user_table;
+use context_course;
 use stdClass;
 
 /**
@@ -35,7 +36,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\quiz_user_table
  */
-class quiz_user_table_test extends \advanced_testcase {
+final class quiz_user_table_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -195,9 +196,9 @@ class quiz_user_table_test extends \advanced_testcase {
     public function test_get_table_data(): void {
         global $CFG;
 
-        $baseurl = $CFG->wwwroot . '/local/assessfreq/dashboard_quiz.php';
-        $context = context_system::instance();
-        $quizusertable = new quiz_user_table($baseurl, $this->quiz1->id, $context->id, '');
+        $baseurl = $CFG->wwwroot . '/local/assessfreq';
+        $context = context_course::instance($this->course->id);
+        $quizusertable = new user_table($baseurl, $this->quiz1->id, $context->id, '');
 
         // Fake getting table.
         $this->expectOutputRegex("/table/");

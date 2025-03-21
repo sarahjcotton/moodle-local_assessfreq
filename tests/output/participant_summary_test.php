@@ -24,6 +24,7 @@
 
 namespace local_assessfreq\output;
 
+use assessfreqsource_quiz\output\participant_summary;
 use stdClass;
 
 /**
@@ -34,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\participant_summary
  */
-class participant_summary_test extends \advanced_testcase {
+final class participant_summary_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -52,6 +53,7 @@ class participant_summary_test extends \advanced_testcase {
 
         $track1 = new stdClass();
         $track1->assessid = 123;
+        $track1->module = 'quiz';
         $track1->notloggedin = 5;
         $track1->loggedin = 0;
         $track1->inprogress = 0;
@@ -60,6 +62,7 @@ class participant_summary_test extends \advanced_testcase {
 
         $track2 = new stdClass();
         $track2->assessid = 123;
+        $track2->module = 'quiz';
         $track2->notloggedin = 4;
         $track2->loggedin = 1;
         $track2->inprogress = 1;
@@ -68,6 +71,7 @@ class participant_summary_test extends \advanced_testcase {
 
         $track3 = new stdClass();
         $track3->assessid = 123;
+        $track3->module = 'quiz';
         $track3->notloggedin = 3;
         $track3->loggedin = 2;
         $track3->inprogress = 2;
@@ -76,6 +80,7 @@ class participant_summary_test extends \advanced_testcase {
 
         $track4 = new stdClass();
         $track4->assessid = 123;
+        $track4->module = 'quiz';
         $track4->notloggedin = 2;
         $track4->loggedin = 3;
         $track4->inprogress = 3;
@@ -84,14 +89,15 @@ class participant_summary_test extends \advanced_testcase {
 
         $track5 = new stdClass();
         $track5->assessid = 123;
+        $track5->module = 'quiz';
         $track5->notloggedin = 1;
         $track5->loggedin = 4;
         $track5->inprogress = 3;
         $track5->finished = 1;
         $track5->timecreated = $now + (60 * 5);
 
-        // Insert out of order.
-        $trackrecords = [$track1, $track5, $track3, $track2, $track4];
+        // Insert in order as we now sort by id for performance reasons.
+        $trackrecords = [$track1, $track2, $track3, $track4, $track5];
 
         $DB->insert_records('local_assessfreq_trend', $trackrecords);
     }
@@ -100,9 +106,12 @@ class participant_summary_test extends \advanced_testcase {
      * Test gett assess due by month chart method.
      */
     public function test_get_assess_activity_chart(): void {
+        global $DB;
+
+        $trends = $DB->get_records('local_assessfreq_trend', ['assessid' => 123, 'module' => 'quiz']);
 
         $participantsumamry = new participant_summary();
-        $result = $participantsumamry->get_participant_summary_chart(123);
+        $result = $participantsumamry->get_participant_summary_chart($trends);
 
         $values = $result['chart']->get_series()[0]->get_values();
         $labels = $result['chart']->get_labels();

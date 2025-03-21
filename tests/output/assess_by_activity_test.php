@@ -24,6 +24,7 @@
 
 namespace local_assessfreq\output;
 
+use assessfreqreport_summary_graphs\output\assess_by_activity;
 use stdClass;
 
 /**
@@ -34,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\assess_by_activity
  */
-class assess_by_activity_test extends \advanced_testcase {
+final class assess_by_activity_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -136,7 +137,7 @@ class assess_by_activity_test extends \advanced_testcase {
         $DB->insert_records('local_assessfreq_site', $records);
 
         $assessbymonth = new assess_by_activity();
-        $result = $assessbymonth->get_assess_by_activity_chart($year);
+        $result = $assessbymonth->get_assess_by_activity_chart($year, 0);
         $values = $result['chart']->get_series()[0]->get_values();
 
         $version = get_config('moodle', 'version');

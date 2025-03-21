@@ -23,12 +23,12 @@
  * @licensehttp://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/ajax', 'core/notification'], function (Ajax, Notification) {
+define(['core/ajax'], function(Ajax) {
 
     /**
      * Module level variables.
      */
-    var CourseSelector = {};
+    let CourseSelector = {};
 
     /**
      * Source of data for Ajax element.
@@ -36,9 +36,8 @@ define(['core/ajax', 'core/notification'], function (Ajax, Notification) {
      * @param {String} selector The selector of the auto complete element.
      * @param {String} query The query string.
      * @param {Function} callback A callback function receiving an array of results.
-     * @return {Void}
-    */
-    CourseSelector.transport = function (selector, query, callback) {
+     */
+    CourseSelector.transport = function(selector, query, callback) {
         Ajax.call([{
             methodname: 'local_assessfreq_get_courses',
             args: {
@@ -46,9 +45,8 @@ define(['core/ajax', 'core/notification'], function (Ajax, Notification) {
             },
         }])[0].then((response) => {
             let courseArray = JSON.parse(response);
+            // eslint-disable-next-line promise/no-callback-in-promise
             callback(courseArray);
-        }).fail(() => {
-            Notification.exception(new Error('Failed to get events'));
         });
     };
 

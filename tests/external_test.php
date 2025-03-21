@@ -24,6 +24,7 @@
 
 namespace local_assessfreq;
 
+use assessfreqreport_heatmap_external;
 use assign;
 use context_module;
 use external_api;
@@ -41,7 +42,7 @@ use stdClass;
  *
  * @runTestsInSeparateProcesses
  */
-class external_test extends \advanced_testcase {
+final class external_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -111,6 +112,7 @@ class external_test extends \advanced_testcase {
         global $CFG, $DB;
 
         require_once($CFG->dirroot . '/webservice/tests/helpers.php');
+        require_once($CFG->dirroot . '/local/assessfreq/report/heatmap/externallib.php');
 
         // Create a course with activity.
         $generator = $this->getDataGenerator();
@@ -223,79 +225,6 @@ class external_test extends \advanced_testcase {
 
 
     /**
-     * Test ajax getting of event data.
-     */
-    public function test_get_frequency(): void {
-        $this->setAdminUser();
-
-        $duedate = 0;
-        $data = new stdClass();
-        $data->year  = 2020;
-        $data->metric = 'assess'; // Can be assess or students.
-        $data->modules = ['all'];
-
-        $jsondata = json_encode($data);
-
-        $returnvalue = local_assessfreq_external::get_frequency($jsondata);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_frequency_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEmpty($eventarr);
-
-        $frequency = new frequency();
-        $frequency->process_site_events($duedate);
-        $frequency->process_user_events($duedate);
-
-        $returnvalue = local_assessfreq_external::get_frequency($jsondata);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_frequency_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEquals(1, $eventarr[2020][3][29]['number']);
-        $this->assertEquals(1, $eventarr[2020][3][28]['number']);
-
-        $data->metric = 'students';
-        $jsondata = json_encode($data);
-        $returnvalue = local_assessfreq_external::get_frequency($jsondata);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_frequency_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEquals(4, $eventarr[2020][3][29]['number']);
-        $this->assertEquals(4, $eventarr[2020][3][28]['number']);
-    }
-
-    /**
-     * Test ajax getting of event data.
-     */
-    public function test_get_process_modules(): void {
-        global $DB;
-
-        $DB->set_field('modules', 'visible', '0', ['name' => 'scorm']);
-        $DB->set_field('modules', 'visible', '0', ['name' => 'choice']);
-
-        set_config('modules', 'quiz,assign,scorm,choice', 'local_assessfreq');
-        set_config('disabledmodules', '0', 'local_assessfreq');
-
-        $returnvalue = local_assessfreq_external::get_process_modules();
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_process_modules_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertArrayHasKey('quiz', $eventarr);
-        $this->assertArrayHasKey('assign', $eventarr);
-        $this->assertArrayNotHasKey('scorm', $eventarr);
-        $this->assertArrayNotHasKey('choice', $eventarr);
-
-        set_config('disabledmodules', '1', 'local_assessfreq');
-        $returnvalue = local_assessfreq_external::get_process_modules();
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_process_modules_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertArrayHasKey('quiz', $eventarr);
-        $this->assertArrayHasKey('assign', $eventarr);
-        $this->assertArrayHasKey('scorm', $eventarr);
-        $this->assertArrayHasKey('choice', $eventarr);
-    }
-
-    /**
      * Test ajax getting of day event data.
      */
     public function test_get_day_events(): void {
@@ -308,11 +237,12 @@ class external_test extends \advanced_testcase {
         $data = new stdClass();
         $data->date  = '2020-03-28';
         $data->modules = ['all'];
+        $data->courseid = $this->course->id;
 
         $jsondata = json_encode($data);
 
-        $returnvalue = local_assessfreq_external::get_day_events($jsondata);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_day_events_returns(), $returnvalue);
+        $returnvalue = assessfreqreport_heatmap_external::get_day_events($jsondata);
+        $returnjson = external_api::clean_returnvalue(assessfreqreport_heatmap_external::get_day_events_returns(), $returnvalue);
         $eventarr = json_decode($returnjson, true);
 
         $this->assertEquals('assign', $eventarr[0]['module']);
@@ -334,83 +264,7 @@ class external_test extends \advanced_testcase {
         $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_courses_returns(), $returnvalue);
         $eventarr = json_decode($returnjson, true);
 
-        $this->assertEquals('blue course', $eventarr[0]['fullname']);
-    }
-
-    /**
-     * Test ajax getting of quiz names.
-     */
-    public function test_get_quizzes(): void {
-        $this->setAdminUser();
-
-        $generator = $this->getDataGenerator();
-        $generator->create_module('quiz', [
-            'course' => $this->course->id,
-        ]);
-        $generator->create_module('quiz', [
-            'course' => $this->course->id,
-        ]);
-
-        $query = $this->course->id;
-
-        $returnvalue = local_assessfreq_external::get_quizzes($query);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_quizzes_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertCount(5, $eventarr);
-    }
-
-    /**
-     * Test ajax getting of quiz names.
-     */
-    public function test_get_quiz_data(): void {
-        $this->setAdminUser();
-
-        $quizid = $this->quiz1->id;
-
-        $returnvalue = local_assessfreq_external::get_quiz_data($quizid);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_quiz_data_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEquals('5 July 2020, 9:00 AM', $eventarr['earlyopen']);
-        $this->assertEquals('6 July 2020, 11:10 AM', $eventarr['lateclose']);
-        $this->assertEquals(4, $eventarr['participants']);
-        $this->assertEquals($this->quiz1->name, $eventarr['name']);
-        $this->assertEquals(2, $eventarr['overrideparticipants']);
-        $this->assertEquals(2, $eventarr['typecount']);
-        $this->assertEquals(6, $eventarr['questioncount']);
-    }
-
-    /**
-     * Test getting of quiz data with dates not available.
-     */
-    public function test_get_quiz_data_dates_na(): void {
-        $this->setAdminUser();
-
-        $quizid = $this->quiz3->id;
-
-        $returnvalue = local_assessfreq_external::get_quiz_data($quizid);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_quiz_data_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEquals(get_string('na', 'local_assessfreq'), $eventarr['timeopen']);
-        $this->assertEquals(get_string('na', 'local_assessfreq'), $eventarr['timeclose']);
-    }
-
-    /**
-     * Test getting of quiz data with dates not available.
-     */
-    public function test_get_quiz_data_overrides_na(): void {
-        $this->setAdminUser();
-
-        $quizid = $this->quiz3->id;
-
-        $returnvalue = local_assessfreq_external::get_quiz_data($quizid);
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_quiz_data_returns(), $returnvalue);
-        $eventarr = json_decode($returnjson, true);
-
-        $this->assertEquals(get_string('na', 'local_assessfreq'), $eventarr['earlyopen']);
-        $this->assertEquals(get_string('na', 'local_assessfreq'), $eventarr['lateclose']);
+        $this->assertStringContainsString('blue course', $eventarr[0]['fullname']);
     }
 
     /**
@@ -434,17 +288,4 @@ class external_test extends \advanced_testcase {
         $this->assertEquals(0, $SESSION->flextable[$tableid]['collapse']['email']);
     }
 
-    /**
-     * Test ajax getting of in progress quiz counts.
-     */
-    public function test_get_inprogress_counts(): void {
-        $this->setAdminUser();
-
-        $returnvalue = local_assessfreq_external::get_inprogress_counts();
-        $returnjson = external_api::clean_returnvalue(local_assessfreq_external::get_inprogress_counts_returns(), $returnvalue);
-        $returnarr = json_decode($returnjson, true);
-
-        $this->assertEquals(0, $returnarr['assessments']);
-        $this->assertEquals(0, $returnarr['participants']);
-    }
 }

@@ -24,6 +24,7 @@
 
 namespace local_assessfreq\output;
 
+use assessfreqreport_student_search\output\user_table;
 use question_engine;
 use context_system;
 use stdClass;
@@ -36,7 +37,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\student_search_table
  */
-class student_search_table_test extends \advanced_testcase {
+final class student_search_table_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -457,20 +458,20 @@ class student_search_table_test extends \advanced_testcase {
     public function test_get_table_data(): void {
         global $CFG;
 
-        $baseurl = $CFG->wwwroot . '/local/assessfreq/dashboard_quiz.php';
-        $context = context_system::instance();
+        $baseurl = $CFG->wwwroot . '/local/assessfreq/';
+        $context = \context_course::instance($this->course->id);
         $now = 1594788000;
-        $quizusertable = new student_search_table($baseurl, $context->id, '', 1, 1, $now);
+        $quizusertable = new user_table($baseurl, $context->id, '', 1, $now);
 
         // Fake getting table.
         $this->expectOutputRegex("/table/");
         $quizusertable->out(1, false);
 
+        $quizusertable->set_page_number(0);
         // Query data.
-        set_user_preference('local_assessfreq_student_search_table_rows_preference', 30);
         $quizusertable->query_db(30, false);
         $rawdata = $quizusertable->rawdata;
 
-        $this->assertCount(30, $rawdata);
+        $this->assertCount(4, $rawdata);
     }
 }

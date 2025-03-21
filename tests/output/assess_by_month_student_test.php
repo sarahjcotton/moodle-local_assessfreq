@@ -24,6 +24,7 @@
 
 namespace local_assessfreq\output;
 
+use assessfreqreport_summary_graphs\output\assess_by_month_student;
 use stdClass;
 
 /**
@@ -34,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_assessfreq\output\assess_by_month_student
  */
-class assess_by_month_student_test extends \advanced_testcase {
+final class assess_by_month_student_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
@@ -99,7 +100,7 @@ class assess_by_month_student_test extends \advanced_testcase {
         }
 
         $assessbymonthstudent = new assess_by_month_student();
-        $result = $assessbymonthstudent->get_assess_by_month_student_chart($year);
+        $result = $assessbymonthstudent->get_assess_by_month_student_chart($year, 0);
         $values = $result['chart']->get_series()[0]->get_values();
 
         foreach ($values as $key => $value) {

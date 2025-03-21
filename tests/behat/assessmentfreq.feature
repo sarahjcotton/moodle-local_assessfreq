@@ -83,16 +83,18 @@ Feature: Assessment frequency
 
   Scenario: Basic test of dashboard display
     Given I log in as "admin"
-    When I navigate to "Plugins > Local plugins > Assessment Frequency > Clear history" in site administration
+    When I navigate to "Plugins > Local plugins > Assessment Frequency Clear History" in site administration
     And I press "Reprocess all events"
     And I press "Continue"
     And I run all adhoc tasks
-    And I navigate to "Reports > Assessment reports > Assessment dashboard" in site administration
-    And I click on "Select year" "button" in the "local-assessfreq-report-heatmap" "region"
-    And I click on "2022" "link" in the "local-assessfreq-heatmap-year" "region"
-    And I click on "td[data-date='2022-1-1']" "css_element"
+    And I navigate to "Reports > Assessment Frequency Report" in site administration
+    And I wait "3" seconds
+    And I click on "Select year" "button"
+    And I click on "2022" "link"
+    And I wait "3" seconds
+    And I click on "td[data-target='2022-1-1']" "css_element"
     Then the following should exist in the "report-dayview-table" table:
-     | Title                         |
+     | Daily schedule                |
      | Assignment: Test assignment 1 |
      | Choice: Test choice 1         |
      | Database: Test database 1     |

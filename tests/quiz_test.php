@@ -24,6 +24,7 @@
 
 namespace local_assessfreq;
 
+use mod_quiz\quiz_settings;
 use question_engine;
 use stdClass;
 
@@ -33,104 +34,104 @@ use stdClass;
  * @package    local_assessfreq
  * @copyright  2020 Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \local_assessfreq\quiz
+ * @covers     \assessfreqsource_quiz\Source
  */
-class quiz_test extends \advanced_testcase {
+final class quiz_test extends \advanced_testcase {
     /**
      *
      * @var stdClass $course Test course.
      */
-    protected $course;
+    protected stdClass $course;
 
     /**
      *
      * @var stdClass First test quiz.
      */
-    protected $quiz1;
+    protected stdClass $quiz1;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz2;
+    protected stdClass $quiz2;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz3;
+    protected stdClass $quiz3;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz4;
+    protected stdClass $quiz4;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz5;
+    protected stdClass $quiz5;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz6;
+    protected stdClass $quiz6;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz7;
+    protected stdClass $quiz7;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz8;
+    protected stdClass $quiz8;
 
     /**
      *
      * @var stdClass Second test quiz.
      */
-    protected $quiz9;
+    protected stdClass $quiz9;
 
     /**
      *
      * @var stdClass First test user.
      */
-    protected $user1;
+    protected stdClass $user1;
 
     /**
      *
      * @var stdClass Second test user.
      */
-    protected $user2;
+    protected stdClass $user2;
 
     /**
      *
      * @var stdClass Third test user.
      */
-    protected $user3;
+    protected stdClass $user3;
 
     /**
      *
      * @var stdClass Fourth test user.
      */
-    protected $user4;
+    protected stdClass $user4;
 
     /**
      *
      * @var stdClass Fifth test user.
      */
-    protected $user5;
+    protected stdClass $user5;
 
     /**
      *
      * @var stdClass Sixth test user.
      */
-    protected $user6;
+    protected stdClass $user6;
 
     /**
      * Set up conditions for tests.
@@ -139,6 +140,10 @@ class quiz_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         global $DB, $CFG;
+
+        require_once(dirname(__FILE__, 2) . '/source/quiz/classes/source.php');
+        require_once(dirname(__FILE__, 2) . '/lib.php');
+
         $now = 1594788000;
 
         // Create a course with activity.
@@ -278,7 +283,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is more than one hour in the past, but end is in the future. (Should return).
         $override3 = new stdClass();
-        $override3->quiz = 3; // OK to use fake id for this.
+        $override3->quiz = $this->quiz1->id;
         $override3->userid = 5; // OK to use fake id for this.
         $override3->timeopen = ($now - (3600 * 2));
         $override3->timeclose = ($now + (3600 * 0.5));
@@ -286,7 +291,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is less than one hour in the past, but end is in the future. (Should return).
         $override4 = new stdClass();
-        $override4->quiz = 4; // OK to use fake id for this.
+        $override4->quiz = $this->quiz1->id;
         $override4->userid = 6; // OK to use fake id for this.
         $override4->timeopen = ($now - (3600 * 0.5));
         $override4->timeclose = ($now + (3600 * 0.5));
@@ -294,7 +299,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is less than one hour in the future, end is more than one hour in the future. (Should return).
         $override5 = new stdClass();
-        $override5->quiz = 5; // OK to use fake id for this.
+        $override5->quiz = $this->quiz1->id;
         $override5->userid = 7; // OK to use fake id for this.
         $override5->timeopen = ($now + (3600 * 0.5));
         $override5->timeclose = ($now + (3600 * 2));
@@ -302,7 +307,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is less than one hour in the future, end is less that one hour in the future. (Should return).
         $override6 = new stdClass();
-        $override6->quiz = 6; // OK to use fake id for this.
+        $override6->quiz = $this->quiz1->id;
         $override6->userid = 8; // OK to use fake id for this.
         $override6->timeopen = ($now + (3600 * 0.25));
         $override6->timeclose = ($now + (3600 * 0.75));
@@ -310,7 +315,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is more than one hour in the future, end is more than one hour in the future. (Should not return).
         $override7 = new stdClass();
-        $override7->quiz = 7; // OK to use fake id for this.
+        $override7->quiz = $this->quiz1->id;
         $override7->userid = 9; // OK to use fake id for this.
         $override7->timeopen = ($now + (3600 * 2));
         $override7->timeclose = ($now + (3600 * 3));
@@ -318,7 +323,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start and end date of override is more than one hour in the past. (Should not be returned).
         $override8 = new stdClass();
-        $override8->quiz = 1; // OK to use fake id for this.
+        $override8->quiz = $this->quiz1->id;
         $override8->userid = 3; // OK to use fake id for this.
         $override8->timeopen = ($now - (3600 * 3));
         $override8->timeclose = ($now - (3600 * 2));
@@ -326,7 +331,7 @@ class quiz_test extends \advanced_testcase {
 
         // Start is more than one hour in the past, but end is less than one hour in the past. (Should return).
         $override9 = new stdClass();
-        $override9->quiz = 2; // OK to use fake id for this.
+        $override9->quiz = $this->quiz1->id;
         $override9->userid = 4; // OK to use fake id for this.
         $override9->timeopen = ($now - (3600 * 2));
         $override9->timeclose = ($now - (3600 * 0.5));
@@ -461,6 +466,7 @@ class quiz_test extends \advanced_testcase {
 
         $track1 = new stdClass();
         $track1->assessid = $quizid;
+        $track1->module = 'quiz';
         $track1->notloggedin = 5;
         $track1->loggedin = 0;
         $track1->inprogress = 0;
@@ -469,6 +475,7 @@ class quiz_test extends \advanced_testcase {
 
         $track2 = new stdClass();
         $track2->assessid = $quizid;
+        $track2->module = 'quiz';
         $track2->notloggedin = 4;
         $track2->loggedin = 1;
         $track2->inprogress = 1;
@@ -477,6 +484,7 @@ class quiz_test extends \advanced_testcase {
 
         $track3 = new stdClass();
         $track3->assessid = $quizid;
+        $track3->module = 'quiz';
         $track3->notloggedin = 3;
         $track3->loggedin = 2;
         $track3->inprogress = 2;
@@ -485,6 +493,7 @@ class quiz_test extends \advanced_testcase {
 
         $track4 = new stdClass();
         $track4->assessid = $quizid;
+        $track4->module = 'quiz';
         $track4->notloggedin = 2;
         $track4->loggedin = 3;
         $track4->inprogress = 3;
@@ -493,20 +502,26 @@ class quiz_test extends \advanced_testcase {
 
         $track5 = new stdClass();
         $track5->assessid = $quizid;
+        $track5->module = 'quiz';
         $track5->notloggedin = 1;
         $track5->loggedin = 4;
         $track5->inprogress = 3;
         $track5->finished = 1;
         $track5->timecreated = $now + (60 * 5);
 
-        // Insert out of order.
-        $trackrecords = [$track1, $track5, $track3, $track2, $track4];
+        // Insert in order as we now sort by id for performance reasons.
+        $trackrecords = [$track1, $track2, $track3, $track4, $track5];
 
         $DB->insert_records('local_assessfreq_trend', $trackrecords);
     }
 
+    /**
+     * Create the mock quiz data.
+     *
+     * @return object[]
+     */
     public function setup_mock_quiz_data(): array {
-        $quizzes = [
+        return [
             208002 =>
             (object)[
                 'name' => 'very SPECIAL Quiz 3',
@@ -580,19 +595,17 @@ class quiz_test extends \advanced_testcase {
                 ],
             ],
         ];
-
-        return $quizzes;
     }
 
     /**
      * Test getting quiz override info.
      */
     public function test_get_quiz_override_info(): void {
-        $quizdata = new quiz();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
         $context = \context_module::instance($this->quiz1->cmid);
 
         // We're testing a private method, so we need to setup reflector magic.
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_quiz_override_info');
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_quiz_override_info');
         $method->setAccessible(true); // Allow accessing of private method.
 
         $result = $method->invoke($quizdata, $this->quiz1->id, $context);
@@ -606,13 +619,22 @@ class quiz_test extends \advanced_testcase {
      * Test getting quiz question information.
      */
     public function test_get_quiz_questions(): void {
-        $quizdata = new quiz();
+        global $DB;
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+
+        [$course, $cm] = get_course_and_cm_from_instance($this->quiz1->id, 'quiz');
+
+        $quizobject = new quiz_settings(
+            $DB->get_record('quiz', ['id' => $cm->instance]),
+            $cm,
+            $course
+        );
 
         // We're testing a private method, so we need to setup reflector magic.
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_quiz_questions');
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_quiz_questions');
         $method->setAccessible(true); // Allow accessing of private method.
 
-        $result = $method->invoke($quizdata, $this->quiz1->id);
+        $result = $method->invoke($quizdata, $quizobject);
 
         $this->assertEquals(2, $result->typecount);
         $this->assertEquals(6, $result->questioncount);
@@ -623,8 +645,8 @@ class quiz_test extends \advanced_testcase {
      */
     public function test_get_quiz_data(): void {
 
-        $quizdata = new quiz();
-        $result = $quizdata->get_quiz_data($this->quiz1->id);
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $result = $quizdata->get_quiz_data($this->quiz1);
 
         $this->assertEquals('5 July 2020, 9:00 AM', $result->earlyopen);
         $this->assertEquals('6 July 2020, 11:10 AM', $result->lateclose);
@@ -639,8 +661,8 @@ class quiz_test extends \advanced_testcase {
      * Test quiz override tracking.
      */
     public function test_get_tracked_overrides(): void {
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_tracked_overrides');
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_overrides');
         $method->setAccessible(true); // Allow accessing of private method.
 
         $now = 1594788000;
@@ -658,8 +680,8 @@ class quiz_test extends \advanced_testcase {
      * Test quiz tracking.
      */
     public function test_get_tracked_quizzes(): void {
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_tracked_quizzes');
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_quizzes');
         $method->setAccessible(true); // Allow accessing of private method.
 
         $now = 1594788000;
@@ -684,15 +706,15 @@ class quiz_test extends \advanced_testcase {
         // Start is less than one hour in the past, but end is in the future. (Should return).
         $override = new stdClass();
         $override->quiz = $this->quiz4->id; // OK to use fake id for this.
-        $override->userid = 7; // OK to use fake id for this.
+        $override->userid = 10; // OK to use fake id for this.
         $override->timeopen = ($now - (3600 * 0.75));
         $override->timeclose = ($now + (3600 * 0.25));
         $override->timelimit = 3600;
 
         $DB->insert_record('quiz_overrides', $override);
 
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_tracked_quizzes_with_overrides');
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracked_quizzes_with_overrides');
         $method->setAccessible(true); // Allow accessing of private method.
 
         $result = $method->invoke($quizdata, $now);
@@ -709,26 +731,21 @@ class quiz_test extends \advanced_testcase {
         $this->assertEquals(($now - (3600 * 0.5)), $result[$this->quiz4->id]->timeopen);
         $this->assertEquals(($now + (3600 * 0.5)), $result[$this->quiz4->id]->timeclose);
 
-        $this->assertCount(5, $result);
+        $this->assertCount(6, $result);
     }
 
     /**
      * Test getting logged in users.
      */
-    public function test_get_loggedin_users(): void {
-        $userids = [
+    public function test_local_assessfreq_get_loggedin_users(): void {
+
+        $result = local_assessfreq_get_loggedin_users([
             $this->user1->id,
             $this->user2->id,
             $this->user3->id,
             $this->user4->id,
             ($this->user4->id + 123),
-        ];
-
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_loggedin_users');
-        $method->setAccessible(true); // Allow accessing of private method.
-
-        $result = $method->invoke($quizdata, $userids);
+        ]);
 
         $this->assertEquals(3, $result->loggedin);
         $this->assertEquals(2, $result->loggedout);
@@ -739,8 +756,9 @@ class quiz_test extends \advanced_testcase {
      */
     public function test_get_quiz_attempts(): void {
 
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'get_quiz_attempts');
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_quiz_attempts');
         $method->setAccessible(true); // Allow accessing of private method.
 
         $result = $method->invoke($quizdata, $this->quiz3->id);
@@ -754,17 +772,12 @@ class quiz_test extends \advanced_testcase {
      */
     public function test_process_quiz_tracking(): void {
         global $DB;
-        $now = 1594788000;
 
-        $quizdata = new quiz();
-        $method = new \ReflectionMethod('\local_assessfreq\quiz', 'process_quiz_tracking');
-        $method->setAccessible(true); // Allow accessing of private method.
-
-        $result = $method->invoke($quizdata, $now);
-
-        $this->assertEquals(5, $result);
-
+        $task = new \assessfreqsource_quiz\task\quiz_tracking();
+        $task->execute();
         $trendrecords = $DB->get_records('local_assessfreq_trend');
+
+        $this->assertCount(6, $trendrecords);
         foreach ($trendrecords as $trendrecord) {
             if ($trendrecord->assessid == $this->quiz3->id) {
                 $this->assertEquals(2, $trendrecord->inprogress);
@@ -782,14 +795,17 @@ class quiz_test extends \advanced_testcase {
         $now = 1594788000;
         $this->setup_quiz_tracking($now, $this->quiz1->id);
 
-        $quizdata = new quiz();
-        $trackingdata = $quizdata->get_quiz_tracking($this->quiz1->id);
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $method = new \ReflectionMethod('\assessfreqsource_quiz\Source', 'get_tracking');
+        $method->setAccessible(true); // Allow accessing of private method.
 
-        $this->assertEquals($now + (60 * 5), array_pop($trackingdata)->timecreated);
-        $this->assertEquals($now + (60 * 4), array_pop($trackingdata)->timecreated);
-        $this->assertEquals($now + (60 * 3), array_pop($trackingdata)->timecreated);
-        $this->assertEquals($now + (60 * 2), array_pop($trackingdata)->timecreated);
+        $trackingdata = $method->invoke($quizdata, $this->quiz1->id);
+
         $this->assertEquals($now + (60 * 1), array_pop($trackingdata)->timecreated);
+        $this->assertEquals($now + (60 * 2), array_pop($trackingdata)->timecreated);
+        $this->assertEquals($now + (60 * 3), array_pop($trackingdata)->timecreated);
+        $this->assertEquals($now + (60 * 4), array_pop($trackingdata)->timecreated);
+        $this->assertEquals($now + (60 * 5), array_pop($trackingdata)->timecreated);
     }
 
     /**
@@ -800,10 +816,10 @@ class quiz_test extends \advanced_testcase {
         $this->setup_quiz_tracking($now, $this->quiz3->id);
         $this->setup_quiz_tracking($now, $this->quiz4->id);
 
-        $quizdata = new quiz();
-        $result = $quizdata->get_inprogress_counts($now);
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $result = $quizdata->get_inprogress_count($now, 0, 0, false);
 
-        $this->assertEquals(2, $result['assessments']);
+        $this->assertEquals(3, $result['assessments']);
         $this->assertEquals(6, $result['participants']);
     }
 
@@ -811,10 +827,10 @@ class quiz_test extends \advanced_testcase {
      * Test getting finished quizzes.
      */
     public function test_get_quizzes_finished(): void {
-        $quizdata = new quiz();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         $now = 1594788000;
-        $result = $quizdata->get_quiz_summaries($now);
+        $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
 
         $this->assertCount(1, $result['finished'][$now - HOURSECS]);
     }
@@ -827,10 +843,10 @@ class quiz_test extends \advanced_testcase {
         $this->setup_quiz_tracking($now, $this->quiz3->id);
         $this->setup_quiz_tracking($now, $this->quiz4->id);
 
-        $quizdata = new quiz();
-        $result = $quizdata->get_quiz_summaries($now);
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
+        $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
 
-        $this->assertCount(2, $result['inprogress']);
+        $this->assertCount(3, $result['inprogress']);
         $this->assertLessThan($now, $result['inprogress'][$this->quiz3->id]->timestampopen);
         $this->assertGreaterThan($now, $result['inprogress'][$this->quiz3->id]->timestampclose);
         $this->assertLessThan($now, $result['inprogress'][$this->quiz4->id]->timestampopen);
@@ -841,41 +857,44 @@ class quiz_test extends \advanced_testcase {
      * Test getting upcomming quizzes.
      */
     public function test_get_quizzes_upcomming(): void {
-        $quizdata = new quiz();
+        $quizdata = \assessfreqsource_quiz\source::get_instance();
 
         $now = 1594780800;
-        $result = $quizdata->get_quiz_summaries($now);
+        $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
 
-        $this->assertCount(2, $result['upcomming'][$now]);
-        $this->assertCount(1, $result['upcomming'][$now + HOURSECS]);
-        $this->assertCount(2, $result['upcomming'][$now + (HOURSECS * 2)]);
-        $this->assertCount(0, $result['upcomming'][$now + (HOURSECS * 3)]);
+        $this->assertCount(2, $result['upcoming'][$now]);
+        $this->assertCount(1, $result['upcoming'][$now + HOURSECS]);
+        $this->assertCount(2, $result['upcoming'][$now + (HOURSECS * 2)]);
+        $this->assertCount(0, $result['upcoming'][$now + (HOURSECS * 3)]);
 
         $now = 1594788000;
-        $result = $quizdata->get_quiz_summaries($now);
+        $result = $quizdata->get_quiz_summaries($now, HOURSECS, HOURSECS);
 
-        $this->assertCount(2, $result['upcomming'][$now]);
-        $this->assertCount(0, $result['upcomming'][$now + HOURSECS]);
-        $this->assertCount(1, $result['upcomming'][$now + (HOURSECS * 2)]);
-        $this->assertCount(0, $result['upcomming'][$now + (HOURSECS * 3)]);
+        $this->assertCount(2, $result['upcoming'][$now]);
+        $this->assertCount(0, $result['upcoming'][$now + HOURSECS]);
+        $this->assertCount(1, $result['upcoming'][$now + (HOURSECS * 2)]);
+        $this->assertCount(0, $result['upcoming'][$now + (HOURSECS * 3)]);
     }
 
     /**
      * Test filtering quizzes.
      */
     public function test_filter_quizzes(): void {
+        global $PAGE;
         // Mock data.
         $quizzes = $this->setup_mock_quiz_data();
+        $renderer = $PAGE->get_renderer('assessfreqreport_activities_in_progress');
 
-        $quizdata = new quiz();
+        $method = new \ReflectionMethod('\assessfreqreport_activities_in_progress\output\renderer', 'filter');
+        $method->setAccessible(true); // Allow accessing of private method.
 
         $search = 'special';
-        $filtered = $quizdata->filter_quizzes($quizzes, $search, 0, 10);
+        $filtered = $method->invoke($renderer, $quizzes, $search, 0, 10);
         $this->assertCount(1, $filtered[0]);
         $this->assertEquals('very SPECIAL Quiz 3', $filtered[0][208002]->name);
 
         $search = 'Independent';
-        $filtered = $quizdata->filter_quizzes($quizzes, $search, 0, 10);
+        $filtered = $method->invoke($renderer, $quizzes, $search, 0, 10);
         $this->assertCount(1, $filtered[0]);
         $this->assertEquals('Independent course 1', $filtered[0][208003]->coursefullname);
     }
@@ -884,20 +903,24 @@ class quiz_test extends \advanced_testcase {
      * Test filtering quizzes with pages.
      */
     public function test_filter_quizzes_paging(): void {
+        global $PAGE;
         // Mock data.
         $quizzes = $this->setup_mock_quiz_data();
+        $renderer = $PAGE->get_renderer('assessfreqreport_activities_in_progress');
 
-        $quizdata = new quiz();
+        $method = new \ReflectionMethod('\assessfreqreport_activities_in_progress\output\renderer', 'filter');
+        $method->setAccessible(true); // Allow accessing of private method.
+
         $search = 'quiz';
 
-        $filtered = $quizdata->filter_quizzes($quizzes, $search, 0, 10);
+        $filtered = $method->invoke($renderer, $quizzes, $search, 0, 10);
         $this->assertCount(2, $filtered[0]);
 
-        $filtered = $quizdata->filter_quizzes($quizzes, $search, 0, 1);
+        $filtered = $method->invoke($renderer, $quizzes, $search, 0, 1);
         $this->assertCount(1, $filtered[0]);
         $this->assertEquals('very SPECIAL Quiz 3', $filtered[0][208002]->name);
 
-        $filtered = $quizdata->filter_quizzes($quizzes, $search, 1, 1);
+        $filtered = $method->invoke($renderer, $quizzes, $search, 1, 1);
         $this->assertCount(1, $filtered[0]);
         $this->assertEquals('Independent course 1', $filtered[0][208003]->coursefullname);
     }
@@ -909,7 +932,6 @@ class quiz_test extends \advanced_testcase {
         // Mock data.
         $quizzes = $this->setup_mock_quiz_data();
 
-        $quizdata = new quiz();
         $sorton = 'name';
 
         $sorted = \local_assessfreq\utils::sort($quizzes, $sorton, 'asc');
