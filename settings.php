@@ -25,83 +25,86 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-// Assessment dashboard link.
-$ADMIN->add('reports', new admin_externalpage(
-    'local_assessfreq_report',
-    get_string('pluginname', 'local_assessfreq'),
-    $CFG->wwwroot . '/local/assessfreq/',
-    'local/assessfreq:view'
-));
+if ($hassiteconfig) {
 
-$ADMIN->add('localplugins', new admin_category('local_assessfreq', get_string('settings:head', 'local_assessfreq')));
-// Settings page historic data processing.
-$ADMIN->add('localplugins', new admin_externalpage(
-    'local_assessfreq_history',
-    get_string('settings:clearhistory', 'local_assessfreq'),
-    new moodle_url('/local/assessfreq/history.php')
-));
+    // Assessment dashboard link.
+    $ADMIN->add('reports', new admin_externalpage(
+        'local_assessfreq_report',
+        get_string('pluginname', 'local_assessfreq'),
+        $CFG->wwwroot . '/local/assessfreq/',
+        'local/assessfreq:view'
+    ));
 
-$reports = core_plugin_manager::instance()->get_plugins_of_type('assessfreqreport');
-$sources = core_plugin_manager::instance()->get_plugins_of_type('assessfreqsource');
+    $ADMIN->add('localplugins', new admin_category('local_assessfreq', get_string('settings:head', 'local_assessfreq')));
+    // Settings page historic data processing.
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_assessfreq_history',
+        get_string('settings:clearhistory', 'local_assessfreq'),
+        new moodle_url('/local/assessfreq/history.php')
+    ));
 
-$settings = new admin_settingpage(
-    'local_assessfreq_settings',
-    get_string('settings:local_assessfreq', 'local_assessfreq')
-);
+    $reports = core_plugin_manager::instance()->get_plugins_of_type('assessfreqreport');
+    $sources = core_plugin_manager::instance()->get_plugins_of_type('assessfreqsource');
 
-// Include hidden courses.
-$setting = new admin_setting_configcheckbox(
-    'local_assessfreq/hiddencourses',
-    get_string('settings:hiddencourses', 'local_assessfreq'),
-    get_string('settings:hiddencourses_desc', 'local_assessfreq'),
-    0
-);
-$settings->add($setting);
-
-// Add the start month to calculate reports from for the year.
-$options = [];
-for ($m = 1; $m <= 12; $m++) {
-    $dateobj = DateTime::createFromFormat('!m', $m);
-    $options[$m] = $dateobj->format('F');
-}
-
-$settings->add(new admin_setting_configselect(
-    'local_assessfreq/start_month',
-    get_string('settings:start_month', 'local_assessfreq'),
-    get_string('settings:start_month_desc', 'local_assessfreq'),
-    '1',
-    $options
-));
-
-// Add the enable checkboxes for reports and sources.
-foreach ($sources as $source) {
-    $enabled = new admin_setting_configcheckbox(
-        'assessfreqsource_' . $source->name . '/enabled',
-        get_string('settings:enablesource', 'local_assessfreq', $source->displayname),
-        get_string('settings:enablesource_help', 'local_assessfreq'),
-        1
+    $settings = new admin_settingpage(
+        'local_assessfreq_settings',
+        get_string('settings:local_assessfreq', 'local_assessfreq')
     );
-    $settings->add($enabled);
-}
 
-foreach ($reports as $report) {
-    $enabled = new admin_setting_configcheckbox(
-        'assessfreqreport_' . $report->name . '/enabled',
-        get_string('settings:enablereport', 'local_assessfreq', $report->displayname),
-        get_string('settings:enablereport_help', 'local_assessfreq'),
-        1
+    // Include hidden courses.
+    $setting = new admin_setting_configcheckbox(
+        'local_assessfreq/hiddencourses',
+        get_string('settings:hiddencourses', 'local_assessfreq'),
+        get_string('settings:hiddencourses_desc', 'local_assessfreq'),
+        0
     );
-    $settings->add($enabled);
-}
+    $settings->add($setting);
 
-$ADMIN->add('local_assessfreq', $settings);
+    // Add the start month to calculate reports from for the year.
+    $options = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $dateobj = DateTime::createFromFormat('!m', $m);
+        $options[$m] = $dateobj->format('F');
+    }
 
-// Add the individual reports settings.
-foreach ($reports as $report) {
-    $report->load_settings($ADMIN, 'local_assessfreq', $hassiteconfig);
-}
+    $settings->add(new admin_setting_configselect(
+        'local_assessfreq/start_month',
+        get_string('settings:start_month', 'local_assessfreq'),
+        get_string('settings:start_month_desc', 'local_assessfreq'),
+        '1',
+        $options
+    ));
 
-// Add the individual sources settings.
-foreach ($sources as $source) {
-    $source->load_settings($ADMIN, 'local_assessfreq', $hassiteconfig);
+    // Add the enable checkboxes for reports and sources.
+    foreach ($sources as $source) {
+        $enabled = new admin_setting_configcheckbox(
+            'assessfreqsource_' . $source->name . '/enabled',
+            get_string('settings:enablesource', 'local_assessfreq', $source->displayname),
+            get_string('settings:enablesource_help', 'local_assessfreq'),
+            1
+        );
+        $settings->add($enabled);
+    }
+
+    foreach ($reports as $report) {
+        $enabled = new admin_setting_configcheckbox(
+            'assessfreqreport_' . $report->name . '/enabled',
+            get_string('settings:enablereport', 'local_assessfreq', $report->displayname),
+            get_string('settings:enablereport_help', 'local_assessfreq'),
+            1
+        );
+        $settings->add($enabled);
+    }
+
+    $ADMIN->add('local_assessfreq', $settings);
+
+    // Add the individual reports settings.
+    foreach ($reports as $report) {
+        $report->load_settings($ADMIN, 'local_assessfreq', $hassiteconfig);
+    }
+
+    // Add the individual sources settings.
+    foreach ($sources as $source) {
+        $source->load_settings($ADMIN, 'local_assessfreq', $hassiteconfig);
+    }
 }
