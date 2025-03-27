@@ -24,6 +24,15 @@
  */
 
 $string['assessfreq:view'] = 'Ability to load the inital view. Report subplugins will also need to be allowed.';
+$string['cachedef_eventsdueactivity'] = 'Events due by activity cache';
+$string['cachedef_eventsduemonth'] = 'Events due by month cache';
+$string['cachedef_eventusers'] = 'Users for month cache';
+$string['cachedef_monthlyuser'] = 'User events due by month cache';
+$string['cachedef_courseevents'] = 'Assessment frequency course event cache';
+$string['cachedef_siteevents'] = 'Assessment frequency site event cache';
+$string['cachedef_userevents'] = 'Assessment frequency user event cache';
+$string['cachedef_usereventsallfrequencyarray'] = 'Assessment frequency all user event cache';
+$string['cachedef_yearevents'] = 'Years that have events';
 $string['courseselect'] = 'Select course...';
 $string['filter:entersearch'] = 'Enter search';
 $string['filter:reset'] = 'Reset';
