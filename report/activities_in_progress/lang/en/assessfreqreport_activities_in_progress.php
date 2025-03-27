@@ -45,7 +45,7 @@ $string['inprogresstable:timeclose'] = 'Time close';
 $string['inprogresstable:timelimit'] = 'Time limit';
 $string['inprogresstable:timeopen'] = 'Time open';
 $string['pluginname'] = 'Report - Activities in Progress';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['report:usage_guidlines'] = '';
 $string['settings:chartheading'] = 'Chart settings';
 $string['settings:chartheading_desc'] = 'These settings allow you to configure the the settings used in the charts and graphs';
@@ -66,15 +66,7 @@ $string['summarychart:loggedin'] = 'Logged in';
 $string['summarychart:notloggedin'] = 'Not logged in';
 $string['summarychart:participants'] = 'Students';
 $string['tab:name'] = 'Activities in Progress';
-
-
-
-
-
 $string['upcomingchart:activities'] = 'Activities';
 $string['upcomingchart:head'] = 'Upcoming activities starting';
 $string['upcomingchart:inprogressdatetime'] = '%H:00';
 $string['upcomingchart:participants'] = 'Students';
-
-
-

@@ -14,20 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace assessfreqsource_scorm\privacy;
+
+use core_privacy\local\metadata\null_provider;
+
 /**
- * Version file.
+ * Privacy provider.
  *
- * @package   local_assessfreq
- * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
- * @copyright Catalyst IT, 2024
+ * @package   assessfreqsource_scorm
+ * @copyright 2025 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'local_assessfreq';
-$plugin->release = 2025010301;
-$plugin->version = 2025010301;
-$plugin->requires = 2023100900; // Requires 4.3.
-$plugin->supported = [403, 405];
-$plugin->maturity = MATURITY_STABLE;
+class provider implements null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

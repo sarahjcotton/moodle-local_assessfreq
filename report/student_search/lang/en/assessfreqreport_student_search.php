@@ -32,7 +32,7 @@ $string['filter:hoursahead'] = 'Hours ahead';
 $string['filter:hoursbehind'] = 'Hours behind';
 $string['filter:submit'] = 'Filter';
 $string['pluginname'] = 'Report - Student Search';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['report:usage_guidlines'] = '';
 $string['settings:finishedcolor'] = 'Finished color';
 $string['settings:finishedcolor_desc'] = 'Select color to display for finished users in charts';

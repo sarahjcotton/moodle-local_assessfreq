@@ -24,5 +24,5 @@
  */
 
 $string['pluginname'] = 'Source - Forum';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['source:name'] = 'Forum';
