@@ -51,7 +51,7 @@ $string['overview:timelimit'] = 'Time limit (minutes)';
 $string['overview:title'] = 'Daily schedule';
 $string['pluginname'] = 'Report - Heatmap';
 $string['pluginsettings'] = 'Report - Heatmap - Settings';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['report:scales'] = 'Scale: ';
 $string['report:usage_guidlines'] = '';
 $string['settings:courselevelyearfilter'] = 'Include year filter at course level';

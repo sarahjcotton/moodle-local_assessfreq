@@ -31,7 +31,7 @@ $string['filter:header'] = 'Filters';
 $string['filter:selectyear'] = 'Select year';
 $string['filter:submit'] = 'Filter';
 $string['pluginname'] = 'Report - Summary Graphs';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['report:usage_guidlines'] = '';
 $string['settings:assessments_due_type'] = 'Students with assessments due by month graph type';
 $string['settings:by_activity_type'] = 'Assessments by activity graph type';

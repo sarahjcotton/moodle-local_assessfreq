@@ -47,7 +47,7 @@ $string['participanttrend:notloggedin'] = 'Not logged in';
 $string['participanttrend:participants'] = 'Participants';
 $string['participanttrend:participantsummary'] = 'Participant summary';
 $string['pluginname'] = 'Source - Quiz';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['settings:windowexclusion'] = 'Window Exclusion';
 $string['settings:windowexclusion_desc'] = 'This setting will allow for quizzes that run for longer than the defined period to be excluded from "in progress" checks.
 This is useful for when a large number of quizzes have been created with large time windows as these affect the performance of reports.';
@@ -77,9 +77,3 @@ $string['summarychart:loggedin'] = 'Logged in';
 $string['summarychart:notloggedin'] = 'Not logged in';
 $string['summarychart:participantsummary'] = 'Participant summary';
 $string['task:quiztracking'] = 'Quiz tracking task';
-
-
-
-
-
-

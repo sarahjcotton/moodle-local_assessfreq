@@ -38,7 +38,7 @@ $string['modal:noactivityselected'] = 'No activity selected';
 $string['modal:searchactivity'] = 'Search for activity';
 $string['modal:selectcourse'] = 'Select course';
 $string['pluginname'] = 'Report - Activity Dashboard';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['searchactivity'] = 'Search for activity';
 $string['settings:chartheading'] = 'Chart settings';
 $string['settings:chartheading_desc'] = 'These settings allow you to configure the the settings used in the charts and graphs';

@@ -46,15 +46,12 @@ $string['participanttrend:notloggedin'] = 'Not logged in';
 $string['participanttrend:participants'] = 'Participants';
 $string['participanttrend:participantsummary'] = 'Participant summary';
 $string['pluginname'] = 'Source - Assign';
-
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['settings:windowexclusion'] = 'Window Exclusion';
 $string['settings:windowexclusion_desc'] = 'This setting will allow for assignments that run for longer than the defined period to be excluded from "in progress" checks.
 This is useful for when a large number of assignments have been created with large time windows as these affect the performance of reports.';
 $string['source:na'] = 'N/A';
 $string['source:name'] = 'Assign';
-
-
-
 $string['studentattempt:actions'] = 'Actions';
 $string['studentattempt:cutoffdate'] = 'Cut-off date/time';
 $string['studentattempt:finished'] = 'Finished';

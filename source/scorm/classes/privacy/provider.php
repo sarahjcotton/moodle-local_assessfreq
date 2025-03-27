@@ -14,15 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace assessfreqsource_scorm\privacy;
+
+use core_privacy\local\metadata\null_provider;
+
 /**
- * Lang file.
+ * Privacy provider.
  *
- * @package   assessfreqsource_forum
- * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
- * @copyright Catalyst IT, 2024
+ * @package   assessfreqsource_scorm
+ * @copyright 2025 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$string['pluginname'] = 'Source - Forum';
-$string['privacy:metadata'] = 'This plugin does not store any personal data.';
-$string['source:name'] = 'Forum';
+class provider implements null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

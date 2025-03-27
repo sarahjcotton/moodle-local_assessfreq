@@ -38,7 +38,15 @@ $string['modal:useroverride'] = 'User override';
 $string['noreports'] = 'No reports have been configured for you.
 If you believe this is an error please contact your site administrator.';
 $string['pluginname'] = 'Assessment Frequency Report';
-$string['privacy:metadata'] = 'The assessment frequency reports only display data';
+$string['privacy:metadata:local_assessfreq'] = 'Data relating users for the local assessfreq plugin';
+$string['privacy:metadata:local_assessfreq_user'] = 'Data relating users with assessment events';
+$string['privacy:metadata:local_assessfreq_user:id'] = 'Record ID';
+$string['privacy:metadata:local_assessfreq_user:userid'] = 'The ID of the user that is effected by the assessment event';
+$string['privacy:metadata:local_assessfreq_user:eventid'] = 'The ID that relates to the assessment event';
+$string['privacy:metadata:local_assessfreq_conf_user'] = 'Data relating users with assessment conflicts';
+$string['privacy:metadata:local_assessfreq_conf_user:id'] = 'Record ID';
+$string['privacy:metadata:local_assessfreq_conf_user:userid'] = 'The ID of the user that is effected by the assessment conflict';
+$string['privacy:metadata:local_assessfreq_conf_user:conflictid'] = 'The ID that relates to the assessment conflict';
 $string['settings:clearhistory'] = 'Assessment Frequency Clear History';
 $string['settings:enablereport'] = 'Enable: {$a}';
 $string['settings:enablereport_help'] = 'Check this control to allow the report to be used for the dashboard.';
@@ -52,13 +60,5 @@ $string['settings:start_month'] = 'Start month';
 $string['settings:start_month_desc'] = 'Specify the month that the heatmap year should start from.';
 $string['subplugintype_assessfreqreport_plural'] = 'Assessment Frequency Reports';
 $string['subplugintype_assessfreqsource_plural'] = 'Assessment Frequency Sources';
-
-
-
 $string['task:dataprocess'] = 'Data collection task';
 $string['task:quiztracking'] = 'Quiz tracking task';
-
-
-
-
-
