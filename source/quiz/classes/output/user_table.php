@@ -284,7 +284,7 @@ class user_table extends table_sql implements renderable {
                         WHERE timemodified >= :stm';
 
         $joins .= ' LEFT JOIN {quiz_overrides} qo ON u.id = qo.userid AND qo.quiz = :qoquiz';
-        $joins .= " LEFT JOIN ($attemptsql) qa ON u.id = qa.userid";
+        $joins .= " INNER JOIN ($attemptsql) qa ON u.id = qa.userid";
         $joins .= " LEFT JOIN ($sessionsql) us ON u.id = us.userid";
 
         $params['qaquiza'] = $this->quizid;
