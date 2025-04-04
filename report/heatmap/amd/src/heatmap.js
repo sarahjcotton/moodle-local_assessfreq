@@ -122,7 +122,7 @@ const moduleDropdown = () => {
                 event.target.classList.toggle('active');
             });
         } else if (module.toLowerCase() === 'close') {
-            links[i].addEventListener('click', event => {
+            links[i].addEventListener('click', async(event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -137,7 +137,7 @@ const moduleDropdown = () => {
                 }
 
                 // Save selection as a user preference.
-                UserPreference.setUserPreference('assessfreqreport_heatmap_modules_preference', JSON.stringify(modules));
+                await UserPreference.setUserPreference('assessfreqreport_heatmap_modules_preference', JSON.stringify(modules));
 
                 // Reload based on selected year.
                 location.reload();
@@ -162,12 +162,12 @@ const moduleDropdown = () => {
 const yearDropdown = () => {
 
     let targets = document.getElementsByClassName('local-assessfreq-report-heatmap-filter-year-option');
-    targets.forEach(el => el.addEventListener('click', event => {
+    targets.forEach(el => el.addEventListener('click', async(event) => {
         event.preventDefault();
         let element = event.target;
 
          // Save selection as a user preference.
-        UserPreference.setUserPreference('assessfreqreport_heatmap_year_preference', element.dataset.year);
+        await UserPreference.setUserPreference('assessfreqreport_heatmap_year_preference', element.dataset.year);
 
         // Reload based on selected year.
         location.reload();
@@ -181,12 +181,12 @@ const yearDropdown = () => {
 const metricDropdown = () => {
 
     let targets = document.getElementsByClassName('local-assessfreq-report-heatmap-filter-metric-option');
-    targets.forEach(el => el.addEventListener('click', event => {
+    targets.forEach(el => el.addEventListener('click', async(event) => {
         event.preventDefault();
         let element = event.target;
 
         // Save selection as a user preference.
-        UserPreference.setUserPreference('assessfreqreport_heatmap_metric_preference', element.dataset.metric);
+        await UserPreference.setUserPreference('assessfreqreport_heatmap_metric_preference', element.dataset.metric);
 
         // Reload based on selected year.
         location.reload();
