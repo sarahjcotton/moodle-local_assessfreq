@@ -80,6 +80,11 @@ final class quiz_user_table_test extends \advanced_testcase {
     protected $user4;
 
     /**
+     * @var stdClass Fifth test user.
+     */
+    protected $user5;
+
+    /**
      * Set up conditions for tests.
      */
     public function setUp(): void {
@@ -118,12 +123,14 @@ final class quiz_user_table_test extends \advanced_testcase {
         $user2 = $generator->create_user();
         $user3 = $generator->create_user();
         $user4 = $generator->create_user();
+        $user5 = $generator->create_user();
 
         // Enrol users into the course.
         $generator->enrol_user($user1->id, $course->id, 'student');
         $generator->enrol_user($user2->id, $course->id, 'student');
         $generator->enrol_user($user3->id, $course->id, 'student');
         $generator->enrol_user($user4->id, $course->id, 'student');
+        $generator->enrol_user($user5->id, $course->id, 'student');
 
         // Set up a couple of overrides.
         $override1 = new stdClass();
@@ -148,6 +155,7 @@ final class quiz_user_table_test extends \advanced_testcase {
         $this->user2 = $user2;
         $this->user3 = $user3;
         $this->user4 = $user4;
+        $this->user5 = $user5;
 
         $CFG->sessiontimeout = 60 * 10;  // Short time out for test.
 
@@ -164,6 +172,7 @@ final class quiz_user_table_test extends \advanced_testcase {
         $sessionrecords = [$record4];
         $DB->insert_records('sessions', $sessionrecords);
 
+        // Create 2 attempts for User 1. One finished, and a newer one in progress.
         $fakeattempt = new stdClass();
         $fakeattempt->userid = $user1->id;
         $fakeattempt->timestart = time();
@@ -182,11 +191,30 @@ final class quiz_user_table_test extends \advanced_testcase {
         $fakeattempt->state = \mod_quiz\quiz_attempt::IN_PROGRESS;
         $DB->insert_record('quiz_attempts', $fakeattempt);
 
+        // Create an attempt for user 2.
         $fakeattempt->userid = $user2->id;
         $fakeattempt->attempt = 1;
         $fakeattempt->sumgrades = null;
         $fakeattempt->uniqueid = 39;
         $fakeattempt->state = \mod_quiz\quiz_attempt::FINISHED;
+        $DB->insert_record('quiz_attempts', $fakeattempt);
+
+        // Create 2 attempts for User 5. One finished, and a newer one in progress, on a different quiz.
+        $fakeattempt->userid = $user5->id;
+        $fakeattempt->timestart = time();
+        $fakeattempt->quiz = $this->quiz1->id;
+        $fakeattempt->attempt = 1;
+        $fakeattempt->sumgrades = 50;
+        $fakeattempt->uniqueid = 14;
+        $fakeattempt->state = \mod_quiz\quiz_attempt::FINISHED;
+        $DB->insert_record('quiz_attempts', $fakeattempt);
+
+        $fakeattempt->timestart = time() + 30;
+        $fakeattempt->quiz = $this->quiz2->id;
+        $fakeattempt->attempt = 1;
+        $fakeattempt->sumgrades = 50;
+        $fakeattempt->uniqueid = 27;
+        $fakeattempt->state = \mod_quiz\quiz_attempt::IN_PROGRESS;
         $DB->insert_record('quiz_attempts', $fakeattempt);
     }
 
@@ -208,27 +236,37 @@ final class quiz_user_table_test extends \advanced_testcase {
         $quizusertable->query_db(20, false);
         $rawdata = $quizusertable->rawdata;
 
-        $this->assertCount(4, $rawdata);
-        $this->assertEquals(4, $quizusertable->totalrows);
+        $this->assertCount(5, $rawdata);
+        $this->assertEquals(5, $quizusertable->totalrows);
 
+        // User 1 should show the latest of their 2 attempts.
         $this->assertEquals($this->quiz1->timeopen, $rawdata[$this->user1->id]->timeopen);
         $this->assertEquals($this->quiz1->timeclose, $rawdata[$this->user1->id]->timeclose);
         $this->assertEquals($this->quiz1->timelimit, $rawdata[$this->user1->id]->timelimit);
         $this->assertEquals('inprogress', $rawdata[$this->user1->id]->state);
 
+        // User 2 should show their only attempt.
         $this->assertEquals($this->quiz1->timeopen, $rawdata[$this->user2->id]->timeopen);
         $this->assertEquals($this->quiz1->timeclose, $rawdata[$this->user2->id]->timeclose);
         $this->assertEquals($this->quiz1->timelimit, $rawdata[$this->user2->id]->timelimit);
         $this->assertEquals('finished', $rawdata[$this->user2->id]->state);
 
+        // User 3 has no attempts and no active session. They should show "Not logged in".
         $this->assertEquals(1593996000, $rawdata[$this->user3->id]->timeopen);
         $this->assertEquals(1594004400, $rawdata[$this->user3->id]->timeclose);
         $this->assertEquals(7200, $rawdata[$this->user3->id]->timelimit);
         $this->assertEquals('notloggedin', $rawdata[$this->user3->id]->state);
 
+        // User 4 has no attempt, but does have an active session. They should show "Logged in".
         $this->assertEquals(1593997200, $rawdata[$this->user4->id]->timeopen);
         $this->assertEquals(1594005000, $rawdata[$this->user4->id]->timeclose);
         $this->assertEquals(7200, $rawdata[$this->user4->id]->timelimit);
         $this->assertEquals('loggedin', $rawdata[$this->user4->id]->state);
+
+        // User 5 has 2 attempts, but the latest is for a different quiz. They should show the earlier "Finished" attempt.
+        $this->assertEquals($this->quiz1->timeopen, $rawdata[$this->user5->id]->timeopen);
+        $this->assertEquals($this->quiz1->timeclose, $rawdata[$this->user5->id]->timeclose);
+        $this->assertEquals($this->quiz1->timelimit, $rawdata[$this->user5->id]->timelimit);
+        $this->assertEquals('finished', $rawdata[$this->user5->id]->state);
     }
 }

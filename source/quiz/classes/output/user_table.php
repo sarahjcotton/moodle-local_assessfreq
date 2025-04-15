@@ -274,9 +274,10 @@ class user_table extends table_sql implements renderable {
                          FROM {quiz_attempts} qa_a
                    INNER JOIN (SELECT userid, MAX(timestart) as timestart
                                  FROM {quiz_attempts}
+                                WHERE quiz = :qaquizb
                              GROUP BY userid) qa_b ON qa_a.userid = qa_b.userid
                                               AND qa_a.timestart = qa_b.timestart
-                        WHERE qa_a.quiz = :qaquiz';
+                        WHERE qa_a.quiz = :qaquiza';
 
         $sessionsql = 'SELECT DISTINCT (userid)
                          FROM {sessions}
@@ -286,7 +287,8 @@ class user_table extends table_sql implements renderable {
         $joins .= " LEFT JOIN ($attemptsql) qa ON u.id = qa.userid";
         $joins .= " LEFT JOIN ($sessionsql) us ON u.id = us.userid";
 
-        $params['qaquiz'] = $this->quizid;
+        $params['qaquiza'] = $this->quizid;
+        $params['qaquizb'] = $this->quizid;
         $params['qoquiz'] = $this->quizid;
         $params['stm'] = $timedout;
 
