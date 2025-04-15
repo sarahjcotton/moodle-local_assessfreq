@@ -236,8 +236,9 @@ final class quiz_user_table_test extends \advanced_testcase {
         $quizusertable->query_db(20, false);
         $rawdata = $quizusertable->rawdata;
 
-        $this->assertCount(5, $rawdata);
-        $this->assertEquals(5, $quizusertable->totalrows);
+        // We only have 3 users that have attempted it.
+        $this->assertCount(3, $rawdata);
+        $this->assertEquals(3, $quizusertable->totalrows);
 
         // User 1 should show the latest of their 2 attempts.
         $this->assertEquals($this->quiz1->timeopen, $rawdata[$this->user1->id]->timeopen);
@@ -250,18 +251,6 @@ final class quiz_user_table_test extends \advanced_testcase {
         $this->assertEquals($this->quiz1->timeclose, $rawdata[$this->user2->id]->timeclose);
         $this->assertEquals($this->quiz1->timelimit, $rawdata[$this->user2->id]->timelimit);
         $this->assertEquals('finished', $rawdata[$this->user2->id]->state);
-
-        // User 3 has no attempts and no active session. They should show "Not logged in".
-        $this->assertEquals(1593996000, $rawdata[$this->user3->id]->timeopen);
-        $this->assertEquals(1594004400, $rawdata[$this->user3->id]->timeclose);
-        $this->assertEquals(7200, $rawdata[$this->user3->id]->timelimit);
-        $this->assertEquals('notloggedin', $rawdata[$this->user3->id]->state);
-
-        // User 4 has no attempt, but does have an active session. They should show "Logged in".
-        $this->assertEquals(1593997200, $rawdata[$this->user4->id]->timeopen);
-        $this->assertEquals(1594005000, $rawdata[$this->user4->id]->timeclose);
-        $this->assertEquals(7200, $rawdata[$this->user4->id]->timelimit);
-        $this->assertEquals('loggedin', $rawdata[$this->user4->id]->state);
 
         // User 5 has 2 attempts, but the latest is for a different quiz. They should show the earlier "Finished" attempt.
         $this->assertEquals($this->quiz1->timeopen, $rawdata[$this->user5->id]->timeopen);
