@@ -72,4 +72,5 @@ $string['subplugintype_assessfreqreport_plural'] = 'Assessment Frequency Reports
 $string['subplugintype_assessfreqsource'] = 'Assessment Frequency Source';
 $string['subplugintype_assessfreqsource_plural'] = 'Assessment Frequency Sources';
 $string['task:dataprocess'] = 'Data collection task';
+$string['task:prunetrenddata'] = 'Prune trend data task';
 $string['task:quiztracking'] = 'Quiz tracking task';
